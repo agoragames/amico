@@ -29,5 +29,13 @@ module Amico
     def follower?(id, follower_id)
       Amico.redis.sismember("#{Amico.namespace}:#{Amico.followers_key}:#{id}", follower_id)
     end
+
+    def following(id)
+      Amico.redis.smembers("#{Amico.namespace}:#{Amico.following_key}:#{id}")
+    end
+
+    def followers(id)
+      Amico.redis.smembers("#{Amico.namespace}:#{Amico.followers_key}:#{id}")
+    end
   end
 end

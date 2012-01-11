@@ -59,4 +59,20 @@ describe Amico::Friendships do
       Amico.follower?(1,11).should be_true
     end
   end
+
+  describe '#following' do
+    it 'should return the correct list' do
+      Amico.follow(1, 11)
+      Amico.follow(1, 12)
+      Amico.following(1).should eql(["11", "12"])      
+    end
+  end
+
+  describe '#followers' do
+    it 'should return the correct list' do
+      Amico.follow(1, 11)
+      Amico.follow(2, 11)
+      Amico.followers(11).should eql(["1", "2"])
+    end
+  end
 end
