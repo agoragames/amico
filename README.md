@@ -28,10 +28,12 @@ Amico.configure do |configuration|
 end
 ```
 
+Use amico:
+
 ```ruby
 require 'amico'
  => true 
- 
+
 Amico.configure do |configuration|
   configuration.redis = Redis.new
   configuration.namespace = 'amico'
