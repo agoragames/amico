@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.authors     = ["David Czarnecki"]
   s.email       = ["czarneckid@acm.org"]
   s.homepage    = "https://github.com/czarneckid/amico"
-  s.summary     = %q{Friendships backed by Redis in Ruby}
-  s.description = %q{Friendships backed by Redis in Ruby}
+  s.summary     = %q{Relationships (e.g. friendships) backed by Redis in Ruby}
+  s.description = %q{Relationships (e.g. friendships) backed by Redis in Ruby}
 
   s.rubyforge_project = "amico"
 

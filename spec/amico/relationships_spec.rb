@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe Amico::Friendships do
+describe Amico::Relationships do
   describe '#follow' do
     it 'should allow you to follow' do
       Amico.follow(1, 11)

@@ -1,5 +1,5 @@
 module Amico
-  module Friendships
+  module Relationships
     def follow(from_id, to_id)
       return if from_id == to_id
 

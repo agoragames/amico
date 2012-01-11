@@ -1,9 +1,9 @@
 require 'redis'
 require 'amico/version'
 require 'amico/configuration'
-require 'amico/friendships'
+require 'amico/relationships'
 
 module Amico
   extend Configuration
-  extend Friendships
+  extend Relationships
 end

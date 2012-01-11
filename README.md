@@ -1,6 +1,6 @@
 # amico
 
-Friendships backed by Redis in Ruby.
+Relationships (e.g. friendships) backed by Redis in Ruby.
 
 ## Installation
 
