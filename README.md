@@ -39,6 +39,7 @@ Amico.configure do |configuration|
   configuration.namespace = 'amico'
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
+  configuration.page_size = 25
 end
 
 Amico.follow(1, 11)
@@ -72,7 +73,10 @@ Amico.following_count(1)
  => 1 
 
 Amico.follower?(1, 11)
- => false 
+ => false
+
+Amico.following(1)
+ => ["11"]
 ```
   
 ## Contributing to amico
