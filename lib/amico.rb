@@ -1,3 +1,4 @@
+require 'redis'
 require 'amico/version'
 require 'amico/configuration'
 require 'amico/friendships'
