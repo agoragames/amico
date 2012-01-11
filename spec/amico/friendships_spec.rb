@@ -8,6 +8,13 @@ describe Amico::Friendships do
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:1").should be(1)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:11").should be(1)
     end
+
+    it 'should not allow you to follow yourself' do
+      Amico.follow(1, 1)
+
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:1").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:1").should be(0)
+    end
   end
 
   describe '#unfollow' do
@@ -67,6 +74,14 @@ describe Amico::Friendships do
       Amico.following(1).should eql(["12", "11"])
       Amico.following(1, :page => 5).should eql(["12", "11"])
     end
+
+    it 'should page correctly' do
+      add_reciprocal_followers
+      
+      Amico.following(1, :page => 1, :page_size => 5).size.should be(5)
+      Amico.following(1, :page => 1, :page_size => 10).size.should be(10)
+      Amico.following(1, :page => 1, :page_size => 26).size.should be(25)
+    end
   end
 
   describe '#followers' do
@@ -75,6 +90,27 @@ describe Amico::Friendships do
       Amico.follow(2, 11)
       Amico.followers(11).should eql(["2", "1"])
       Amico.followers(11, :page => 5).should eql(["2", "1"])
+    end
+
+    it 'should page correctly' do
+      add_reciprocal_followers
+
+      Amico.followers(1, :page => 1, :page_size => 5).size.should be(5)
+      Amico.followers(1, :page => 1, :page_size => 10).size.should be(10)
+      Amico.followers(1, :page => 1, :page_size => 26).size.should be(25)
+    end
+  end
+
+  private
+
+  def add_reciprocal_followers(count = 26)
+    1.upto(count) do |outer_index|
+      1.upto(count) do |inner_index|
+        if outer_index != inner_index
+          Amico.follow(outer_index, inner_index + 1000)
+          Amico.follow(inner_index + 1000, outer_index)
+        end
+      end
     end
   end
 end

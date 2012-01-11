@@ -1,6 +1,8 @@
 module Amico
   module Friendships
     def follow(from_id, to_id)
+      return if from_id == to_id
+      
       Amico.redis.multi do
         Amico.redis.zadd("#{Amico.namespace}:#{Amico.following_key}:#{from_id}", Time.now.to_i, to_id)
         Amico.redis.zadd("#{Amico.namespace}:#{Amico.followers_key}:#{to_id}", Time.now.to_i, from_id)
@@ -44,8 +46,8 @@ module Amico
       {:page_size => Amico.page_size, :page => 1}
     end
 
-    def total_pages(key)
-      (Amico.redis.zcard(key) / Amico.page_size.to_f).ceil
+    def total_pages(key, page_size)
+      (Amico.redis.zcard(key) / page_size.to_f).ceil
     end
 
     def members(key, options = default_options)
@@ -54,8 +56,8 @@ module Amico
         options[:page] = 1
       end
 
-      if options[:page] > total_pages(key)
-        options[:page] = total_pages(key)
+      if options[:page] > total_pages(key, options[:page_size])
+        options[:page] = total_pages(key, options[:page_size])
       end
 
       index_for_redis = options[:page] - 1
