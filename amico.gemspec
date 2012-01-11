@@ -6,10 +6,10 @@ Gem::Specification.new do |s|
   s.name        = "amico"
   s.version     = Amico::VERSION
   s.authors     = ["David Czarnecki"]
-  s.email       = ["czarneckid@acm.org"]
-  s.homepage    = "https://github.com/czarneckid/amico"
-  s.summary     = %q{Relationships (e.g. friendships) backed by Redis in Ruby}
-  s.description = %q{Relationships (e.g. friendships) backed by Redis in Ruby}
+  s.email       = ["dczarnecki@agoragames.com"]
+  s.homepage    = "https://github.com/agoragames/amico"
+  s.summary     = %q{Relationships (e.g. friendships) backed by Redis}
+  s.description = %q{Relationships (e.g. friendships) backed by Redis}
 
   s.rubyforge_project = "amico"
 
