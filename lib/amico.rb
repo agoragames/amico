@@ -1,5 +1,8 @@
-require "amico/version"
+require 'amico/version'
+require 'amico/configuration'
+require 'amico/friendships'
 
 module Amico
-  # Your code goes here...
+  extend Configuration
+  extend Friendships
 end
