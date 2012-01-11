@@ -25,6 +25,7 @@ Amico.configure do |configuration|
   configuration.namespace = 'amico'
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
+  configuration.page_size = 25
 end
 ```
 
