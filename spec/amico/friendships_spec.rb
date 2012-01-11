@@ -5,8 +5,8 @@ describe Amico::Friendships do
     it 'should allow you to follow' do
       Amico.follow(1, 11)
 
-      Amico.redis.scard("#{Amico.namespace}:#{Amico.following_key}:1").should be(1)
-      Amico.redis.scard("#{Amico.namespace}:#{Amico.followers_key}:11").should be(1)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:1").should be(1)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:11").should be(1)
     end
   end
 
@@ -14,13 +14,13 @@ describe Amico::Friendships do
     it 'should allow you to follow' do
       Amico.follow(1, 11)
 
-      Amico.redis.scard("#{Amico.namespace}:#{Amico.following_key}:1").should be(1)
-      Amico.redis.scard("#{Amico.namespace}:#{Amico.followers_key}:11").should be(1)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:1").should be(1)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:11").should be(1)
 
       Amico.unfollow(1, 11)
 
-      Amico.redis.scard("#{Amico.namespace}:#{Amico.following_key}:1").should be(0)
-      Amico.redis.scard("#{Amico.namespace}:#{Amico.followers_key}:11").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:1").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:11").should be(0)
     end
   end
 
@@ -64,7 +64,8 @@ describe Amico::Friendships do
     it 'should return the correct list' do
       Amico.follow(1, 11)
       Amico.follow(1, 12)
-      Amico.following(1).should eql(["11", "12"])      
+      Amico.following(1).should eql(["12", "11"])
+      Amico.following(1, :page => 5).should eql(["12", "11"])
     end
   end
 
@@ -72,7 +73,8 @@ describe Amico::Friendships do
     it 'should return the correct list' do
       Amico.follow(1, 11)
       Amico.follow(2, 11)
-      Amico.followers(11).should eql(["1", "2"])
+      Amico.followers(11).should eql(["2", "1"])
+      Amico.followers(11, :page => 5).should eql(["2", "1"])
     end
   end
 end

@@ -4,6 +4,7 @@ module Amico
     attr_accessor :namespace
     attr_accessor :following_key
     attr_accessor :followers_key
+    attr_accessor :page_size
 
     def configure
       yield self
@@ -19,6 +20,10 @@ module Amico
 
     def followers_key
       @followers_key ||= 'followers'
+    end
+
+    def page_size
+      @page_size ||= 25
     end
   end
 end
