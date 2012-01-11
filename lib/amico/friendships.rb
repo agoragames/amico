@@ -2,7 +2,7 @@ module Amico
   module Friendships
     def follow(from_id, to_id)
       return if from_id == to_id
-      
+
       Amico.redis.multi do
         Amico.redis.zadd("#{Amico.namespace}:#{Amico.following_key}:#{from_id}", Time.now.to_i, to_id)
         Amico.redis.zadd("#{Amico.namespace}:#{Amico.followers_key}:#{to_id}", Time.now.to_i, from_id)
@@ -38,6 +38,14 @@ module Amico
 
     def followers(id, options = default_options)
       members("#{Amico.namespace}:#{Amico.followers_key}:#{id}", options)
+    end
+
+    def following_page_count(id, page_size = Amico.page_size)
+      total_pages("#{Amico.namespace}:#{Amico.following_key}:#{id}", page_size)
+    end
+
+    def followers_page_count(id, page_size = Amico.page_size)
+      total_pages("#{Amico.namespace}:#{Amico.followers_key}:#{id}", page_size)
     end
 
     private

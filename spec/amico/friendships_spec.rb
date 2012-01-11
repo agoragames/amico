@@ -101,6 +101,26 @@ describe Amico::Friendships do
     end
   end
 
+  describe '#following_page_count' do
+    it 'should return the correct count' do
+      add_reciprocal_followers
+
+      Amico.following_page_count(1).should be(1)
+      Amico.following_page_count(1, 10).should be(3)
+      Amico.following_page_count(1, 5).should be(5)
+    end
+  end
+
+  describe '#followers_page_count' do
+    it 'should return the correct count' do
+      add_reciprocal_followers
+
+      Amico.followers_page_count(1).should be(1)
+      Amico.followers_page_count(1, 10).should be(3)
+      Amico.followers_page_count(1, 5).should be(5)
+    end
+  end
+
   private
 
   def add_reciprocal_followers(count = 26)
