@@ -78,6 +78,15 @@ Amico.follower?(1, 11)
 
 Amico.following(1)
  => ["11"]
+
+Amico.block(1, 11)
+ => [1, 1, 1, 1, 1] 
+
+Amico.following?(11, 1)
+ => false 
+
+Amico.blocked?(1, 11)
+ => true 
 ```
 
 You can pass `:page => 1` and `:page_size => 25` options into the `following` and `followers` methods. Set the values as appropriate.
