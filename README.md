@@ -111,7 +111,10 @@ Amico.reciprocated(1)
  => ["11"]
 ```
 
-You can pass `:page => 1` and `:page_size => 25` options into the `following` and `followers` methods. Set the values as appropriate.
+## Documentation 
+
+The source for the [relationships module](https://github.com/agoragames/amico/blob/master/lib/amico/relationships.rb) is well-documented. There are some 
+simple examples in the method documentation. You can also refer to the [online documentation](http://rubydoc.info/gems/amico/).
   
 ## Contributing to amico
  
