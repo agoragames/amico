@@ -115,6 +115,18 @@ Amico.reciprocated(1)
 
 The source for the [relationships module](https://github.com/agoragames/amico/blob/master/lib/amico/relationships.rb) is well-documented. There are some 
 simple examples in the method documentation. You can also refer to the [online documentation](http://rubydoc.info/gems/amico/).
+
+## FAQ?
+
+### Why use Redis sorted sets and not Redis sets?
+
+Based on the work I did in developing [leaderboard](https://github.com/agoragames/leaderboard), 
+leaderboards backed by Redis, I know I wanted to be able to page through the various relationships. 
+This does not seem to be possible given the current set of commands for Redis sets. 
+
+Also, by using the "score" in Redis sorted sets that is based on the time of when a relationship 
+is established, we can get our "recent friends". It is possible that the scoring function may be 
+user-defined in the future to allow for some specific ordering.
   
 ## Contributing to amico
  
