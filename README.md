@@ -25,6 +25,8 @@ Amico.configure do |configuration|
   configuration.namespace = 'amico'
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
+  configuration.blocked_key = 'blocked'
+  configuration.reciprocated_key = 'reciprocated'
   configuration.page_size = 25
 end
 ```
@@ -40,6 +42,8 @@ Amico.configure do |configuration|
   configuration.namespace = 'amico'
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
+  configuration.blocked_key = 'blocked'
+  configuration.reciprocated_key = 'reciprocated'
   configuration.page_size = 25
 end
 
@@ -87,6 +91,24 @@ Amico.following?(11, 1)
 
 Amico.blocked?(1, 11)
  => true 
+
+Amico.unblock(1, 11)
+ => true
+
+Amico.blocked?(1, 11)
+ => false
+
+Amico.follow(11, 1)
+ => nil
+
+Amico.follow(1, 11)
+ => [1, 1]
+
+Amico.reciprocated?(1, 11)
+ => true
+
+Amico.reciprocated(1)
+ => ["11"]
 ```
 
 You can pass `:page => 1` and `:page_size => 25` options into the `following` and `followers` methods. Set the values as appropriate.

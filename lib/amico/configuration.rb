@@ -5,6 +5,7 @@ module Amico
     attr_accessor :following_key
     attr_accessor :followers_key
     attr_accessor :blocked_key
+    attr_accessor :reciprocated_key
     attr_accessor :page_size
 
     def configure
@@ -25,6 +26,10 @@ module Amico
 
     def blocked_key
       @blocked_key ||= 'blocked'
+    end
+
+    def reciprocated_key
+      @reciprocated_key ||= 'reciprocated'
     end
 
     def page_size

@@ -15,10 +15,18 @@ describe Amico::Relationships do
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:1").should be(0)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:1").should be(0)
     end
+
+    it 'should add each individual to the reciprocated set if you both follow each other' do
+      Amico.follow(1, 11)
+      Amico.follow(11, 1)
+
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:1").should be(1)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:11").should be(1)
+    end
   end
 
   describe '#unfollow' do
-    it 'should allow you to follow' do
+    it 'should allow you to unfollow' do
       Amico.follow(1, 11)
 
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:1").should be(1)
@@ -28,6 +36,8 @@ describe Amico::Relationships do
 
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:1").should be(0)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:11").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:1").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:11").should be(0)
     end
   end
 
@@ -38,6 +48,8 @@ describe Amico::Relationships do
 
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:11").should be(0) 
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:1").should be(1) 
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:1").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:11").should be(0)
     end
 
     it 'should allow you to block someone who is not following you' do
@@ -62,6 +74,15 @@ describe Amico::Relationships do
     it 'should not allow you to block yourself' do
       Amico.block(1, 1)
       Amico.blocked?(1, 1).should be_false
+    end
+  end
+
+  describe '#unblock' do
+    it 'should allow you to unblock someone you have blocked' do
+      Amico.block(1, 11)
+      Amico.blocked?(1, 11).should be_true
+      Amico.unblock(1, 11)
+      Amico.blocked?(1, 11).should be_false      
     end
   end
 
@@ -92,6 +113,19 @@ describe Amico::Relationships do
       Amico.block(1, 11)
       Amico.blocked?(1, 11).should be_true
       Amico.following?(11, 1).should be_false
+    end
+  end
+
+  describe '#reciprocated?' do
+    it 'should return true if both individuals are following each other' do
+      Amico.follow(1, 11)
+      Amico.follow(11, 1)
+      Amico.reciprocated?(1, 11).should be_true
+    end
+
+    it 'should return false if both individuals are not following each other' do
+      Amico.follow(1, 11)
+      Amico.reciprocated?(1, 11).should be_false
     end
   end
 
@@ -146,6 +180,23 @@ describe Amico::Relationships do
     end
   end
 
+  describe '#reciprocated' do
+    it 'should return the correct list' do
+      Amico.follow(1, 11)
+      Amico.follow(11, 1)
+      Amico.reciprocated(1).should eql(["11"])
+      Amico.reciprocated(11).should eql(["1"])
+    end
+
+    it 'should page correctly' do
+      add_reciprocal_followers
+
+      Amico.reciprocated(1, :page => 1, :page_size => 5).size.should be(5)
+      Amico.reciprocated(1, :page => 1, :page_size => 10).size.should be(10)
+      Amico.reciprocated(1, :page => 1, :page_size => 26).size.should be(25)
+    end
+  end
+
   describe '#following_count' do
     it 'should return the correct count' do
       Amico.follow(1, 11)
@@ -164,6 +215,17 @@ describe Amico::Relationships do
     it 'should return the correct count' do
       Amico.block(1, 11)
       Amico.blocked_count(1).should be(1)
+    end
+  end
+
+  describe '#reciprocated_count' do
+    it 'should return the correct count' do
+      Amico.follow(1, 11)
+      Amico.follow(11, 1)
+      Amico.follow(1, 12)
+      Amico.follow(12, 1)
+      Amico.follow(1, 13)
+      Amico.reciprocated_count(1).should be(2)
     end
   end
 
@@ -194,6 +256,16 @@ describe Amico::Relationships do
       Amico.blocked_page_count(1).should be(1)
       Amico.blocked_page_count(1, 10).should be(3)
       Amico.blocked_page_count(1, 5).should be(5)
+    end
+  end
+
+  describe '#reciprocated_page_count' do
+    it 'should return the correct count' do
+      add_reciprocal_followers
+
+      Amico.reciprocated_page_count(1).should be(1)
+      Amico.reciprocated_page_count(1, 10).should be(3)
+      Amico.reciprocated_page_count(1, 5).should be(5)
     end
   end
 
