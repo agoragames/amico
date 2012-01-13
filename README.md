@@ -25,6 +25,8 @@ Amico.configure do |configuration|
   configuration.namespace = 'amico'
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
+  configuration.blocked_key = 'blocked'
+  configuration.reciprocated_key = 'reciprocated'
   configuration.page_size = 25
 end
 ```
@@ -40,6 +42,8 @@ Amico.configure do |configuration|
   configuration.namespace = 'amico'
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
+  configuration.blocked_key = 'blocked'
+  configuration.reciprocated_key = 'reciprocated'
   configuration.page_size = 25
 end
 
@@ -77,6 +81,33 @@ Amico.follower?(1, 11)
  => false
 
 Amico.following(1)
+ => ["11"]
+
+Amico.block(1, 11)
+ => [1, 1, 1, 1, 1] 
+
+Amico.following?(11, 1)
+ => false 
+
+Amico.blocked?(1, 11)
+ => true 
+
+Amico.unblock(1, 11)
+ => true
+
+Amico.blocked?(1, 11)
+ => false
+
+Amico.follow(11, 1)
+ => nil
+
+Amico.follow(1, 11)
+ => [1, 1]
+
+Amico.reciprocated?(1, 11)
+ => true
+
+Amico.reciprocated(1)
  => ["11"]
 ```
 

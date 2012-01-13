@@ -2,18 +2,50 @@ module Amico
   module Relationships
     def follow(from_id, to_id)
       return if from_id == to_id
+      return if blocked?(to_id, from_id)
 
       Amico.redis.multi do
         Amico.redis.zadd("#{Amico.namespace}:#{Amico.following_key}:#{from_id}", Time.now.to_i, to_id)
         Amico.redis.zadd("#{Amico.namespace}:#{Amico.followers_key}:#{to_id}", Time.now.to_i, from_id)
       end
+
+      if reciprocated?(from_id, to_id)
+        Amico.redis.multi do
+          Amico.redis.zadd("#{Amico.namespace}:#{Amico.reciprocated_key}:#{from_id}", Time.now.to_i, to_id)
+          Amico.redis.zadd("#{Amico.namespace}:#{Amico.reciprocated_key}:#{to_id}", Time.now.to_i, from_id)
+        end
+      end
     end
 
     def unfollow(from_id, to_id)
+      return if from_id == to_id
+
       Amico.redis.multi do
         Amico.redis.zrem("#{Amico.namespace}:#{Amico.following_key}:#{from_id}", to_id)
         Amico.redis.zrem("#{Amico.namespace}:#{Amico.followers_key}:#{to_id}", from_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{from_id}", to_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{to_id}", from_id)
       end
+    end
+
+    def block(from_id, to_id)
+      return if from_id == to_id
+
+      Amico.redis.multi do
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.following_key}:#{from_id}", to_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.following_key}:#{to_id}", from_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.followers_key}:#{to_id}", from_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.followers_key}:#{from_id}", to_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{from_id}", to_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{to_id}", from_id)
+        Amico.redis.zadd("#{Amico.namespace}:#{Amico.blocked_key}:#{from_id}", Time.now.to_i, to_id)
+      end
+    end
+
+    def unblock(from_id, to_id)
+      return if from_id == to_id
+
+      Amico.redis.zrem("#{Amico.namespace}:#{Amico.blocked_key}:#{from_id}", to_id)
     end
 
     def following_count(id)
@@ -24,12 +56,28 @@ module Amico
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:#{id}")
     end
 
+    def blocked_count(id)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{id}")
+    end
+
+    def reciprocated_count(id)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:#{id}")
+    end
+
     def following?(id, following_id)
       !Amico.redis.zscore("#{Amico.namespace}:#{Amico.following_key}:#{id}", following_id).nil?
     end
 
     def follower?(id, follower_id)
       !Amico.redis.zscore("#{Amico.namespace}:#{Amico.followers_key}:#{id}", follower_id).nil?
+    end
+
+    def blocked?(id, blocked_id)
+      !Amico.redis.zscore("#{Amico.namespace}:#{Amico.blocked_key}:#{id}", blocked_id).nil?
+    end
+
+    def reciprocated?(from_id, to_id)
+      following?(from_id, to_id) && following?(to_id, from_id)
     end
 
     def following(id, options = default_options)
@@ -40,12 +88,28 @@ module Amico
       members("#{Amico.namespace}:#{Amico.followers_key}:#{id}", options)
     end
 
+    def blocked(id, options = default_options)
+      members("#{Amico.namespace}:#{Amico.blocked_key}:#{id}", options)
+    end
+
+    def reciprocated(id, options = default_options)
+      members("#{Amico.namespace}:#{Amico.reciprocated_key}:#{id}", options)
+    end
+
     def following_page_count(id, page_size = Amico.page_size)
       total_pages("#{Amico.namespace}:#{Amico.following_key}:#{id}", page_size)
     end
 
     def followers_page_count(id, page_size = Amico.page_size)
       total_pages("#{Amico.namespace}:#{Amico.followers_key}:#{id}", page_size)
+    end
+
+    def blocked_page_count(id, page_size = Amico.page_size)
+      total_pages("#{Amico.namespace}:#{Amico.blocked_key}:#{id}", page_size)
+    end
+
+    def reciprocated_page_count(id, page_size = Amico.page_size)
+      total_pages("#{Amico.namespace}:#{Amico.reciprocated_key}:#{id}", page_size)
     end
 
     private

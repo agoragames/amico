@@ -7,6 +7,8 @@ describe Amico::Configuration do
         configuration.namespace.should eql('amico')
         configuration.following_key.should eql('following')
         configuration.followers_key.should eql('followers')
+        configuration.blocked_key.should eql('blocked')
+        configuration.reciprocated_key.should eql('reciprocated')
         configuration.page_size.should be(25)
       end
     end
