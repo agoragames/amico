@@ -114,7 +114,7 @@ Amico.reciprocated(1)
 ## Documentation 
 
 The source for the [relationships module](https://github.com/agoragames/amico/blob/master/lib/amico/relationships.rb) is well-documented. There are some 
-simple examples in the method documentation. You can also refer to the [online documentation](http://rubydoc.info/gems/amico/).
+simple examples in the method documentation. You can also refer to the [online documentation](http://rubydoc.info/github/agoragames/amico/master/frames).
 
 ## FAQ?
 
