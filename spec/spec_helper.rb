@@ -7,7 +7,6 @@ RSpec.configure do |config|
   config.before(:all) do
     Amico.configure do |configuration|
       redis = Redis.new(:db => 15)
-      redis.flushdb
       configuration.redis = redis
     end
   end
