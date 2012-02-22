@@ -1,3 +1,7 @@
+# 1.2.0
+
+* Added pending to relationships
+
 # 1.1.0
 
 * Added blocking to relationships
