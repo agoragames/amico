@@ -398,6 +398,18 @@ module Amico
       total_pages("#{Amico.namespace}:#{Amico.reciprocated_key}:#{id}", page_size)
     end
 
+    # Count the number of pages of pending relationships for an individual.
+    #
+    # @param id [String] ID of the individual.
+    # @param page_size [int] Page size (default: Amico.page_size).
+    #
+    # Examples
+    #
+    #   Amico.follow(11, 1)
+    #   Amico.follow(12, 1)
+    #   Amico.pending_page_count(1) # 1
+    #    
+    # @return the number of pages of pending relationships for an individual.
     def pending_page_count(id, page_size = Amico.page_size)
       total_pages("#{Amico.namespace}:#{Amico.pending_key}:#{id}", page_size)
     end
