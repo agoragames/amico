@@ -27,6 +27,8 @@ Amico.configure do |configuration|
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
   configuration.reciprocated_key = 'reciprocated'
+  configuration.pending_key = 'pending'
+  configuration.pending_follow = false
   configuration.page_size = 25
 end
 ```
@@ -44,6 +46,8 @@ Amico.configure do |configuration|
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
   configuration.reciprocated_key = 'reciprocated'
+  configuration.pending_key = 'pending'
+  configuration.pending_follow = false
   configuration.page_size = 25
 end
 
@@ -109,6 +113,82 @@ Amico.reciprocated?(1, 11)
 
 Amico.reciprocated(1)
  => ["11"]
+```
+
+Use amico (with pending relationships for follow):
+
+```ruby
+require 'amico'
+ => true 
+
+Amico.configure do |configuration|
+  configuration.redis = Redis.new
+  configuration.namespace = 'amico'
+  configuration.following_key = 'following'
+  configuration.followers_key = 'followers'
+  configuration.blocked_key = 'blocked'
+  configuration.reciprocated_key = 'reciprocated'
+  configuration.pending_key = 'pending'
+  configuration.pending_follow = true
+  configuration.page_size = 25
+end
+
+Amico.follow(1, 11)
+ => true 
+
+Amico.follow(11, 1)
+ => true 
+
+Amico.pending?(1, 11)
+ => true 
+
+Amico.pending?(11, 1)
+ => true 
+
+Amico.accept(1, 11)
+ => nil 
+
+Amico.pending?(1, 11)
+ => false 
+
+Amico.pending?(11, 1)
+ => true 
+
+Amico.following?(1, 11)
+ => true 
+
+Amico.following?(11, 1)
+ => false 
+
+Amico.follower?(11, 1)
+ => true 
+
+Amico.follower?(1, 11)
+ => false 
+
+Amico.accept(11, 1)
+ => [1, 1] 
+
+Amico.pending?(1, 11)
+ => false 
+
+Amico.pending?(11, 1)
+ => false 
+
+Amico.following?(1, 11)
+ => true 
+
+Amico.following?(11, 1)
+ => true 
+
+Amico.follower?(11, 1)
+ => true 
+
+Amico.follower?(1, 11)
+ => true 
+ 
+Amico.reciprocated?(1, 11)
+ => true 
 ```
 
 ## Documentation 

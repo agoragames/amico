@@ -19,6 +19,12 @@ module Amico
     # Key used in Redis for tracking who has reciprocated a follow for an individual.
     attr_accessor :reciprocated_key
 
+    # Key used in Redis for tracking pending follow relationships for an individual.
+    attr_accessor :pending_key
+
+    # Key used to indicate whether or not a follow should be pending or not.
+    attr_accessor :pending_follow
+
     # Page size to be used when paging through the various types of relationships.
     attr_accessor :page_size
 
@@ -33,6 +39,8 @@ module Amico
     #     configuration.followers_key = 'followers'
     #     configuration.blocked_key = 'blocked'
     #     configuration.reciprocated_key = 'reciprocated'
+    #     configuration.pending_key = 'pending'
+    #     configuration.pending_follow = false
     #     configuration.page_size = 25
     #   end
     def configure
@@ -72,6 +80,20 @@ module Amico
     # @return the key used in Redis for tracking who has reciprocated a follow for an individual or the default of 'reciprocated' if not set.
     def reciprocated_key
       @reciprocated_key ||= 'reciprocated'
+    end
+
+    # Key used in Redis for tracking pending follow relationships for an individual.
+    #
+    # @return the key used in Redis for tracking pending follow relationships for an individual.
+    def pending_key
+      @pending_key ||= 'pending'
+    end
+
+    # Key used to indicate whether or not a follow should be pending or not.
+    #
+    # @return the key used to indicate whether or not a follow should be pending or not.
+    def pending_follow
+      @pending_follow ||= false
     end
 
     # Page size to be used when paging through the various types of relationships.

@@ -13,17 +13,12 @@ module Amico
     def follow(from_id, to_id)
       return if from_id == to_id
       return if blocked?(to_id, from_id)
+      return if Amico.pending_follow && pending?(from_id, to_id)
 
-      Amico.redis.multi do
-        Amico.redis.zadd("#{Amico.namespace}:#{Amico.following_key}:#{from_id}", Time.now.to_i, to_id)
-        Amico.redis.zadd("#{Amico.namespace}:#{Amico.followers_key}:#{to_id}", Time.now.to_i, from_id)
-      end
-
-      if reciprocated?(from_id, to_id)
-        Amico.redis.multi do
-          Amico.redis.zadd("#{Amico.namespace}:#{Amico.reciprocated_key}:#{from_id}", Time.now.to_i, to_id)
-          Amico.redis.zadd("#{Amico.namespace}:#{Amico.reciprocated_key}:#{to_id}", Time.now.to_i, from_id)
-        end
+      unless Amico.pending_follow
+        add_following_followers_reciprocated(from_id, to_id)
+      else
+        Amico.redis.zadd("#{Amico.namespace}:#{Amico.pending_key}:#{to_id}", Time.now.to_i, from_id)
       end
     end
 
@@ -46,8 +41,9 @@ module Amico
         Amico.redis.zrem("#{Amico.namespace}:#{Amico.followers_key}:#{to_id}", from_id)
         Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{from_id}", to_id)
         Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{to_id}", from_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{to_id}", from_id)
       end
-    end
+    end  
 
     # Block a relationship between two IDs. This method also has the side effect 
     # of removing any follower or following relationship between the two IDs. 
@@ -68,6 +64,7 @@ module Amico
         Amico.redis.zrem("#{Amico.namespace}:#{Amico.followers_key}:#{from_id}", to_id)
         Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{from_id}", to_id)
         Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{to_id}", from_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{from_id}", to_id)
         Amico.redis.zadd("#{Amico.namespace}:#{Amico.blocked_key}:#{from_id}", Time.now.to_i, to_id)
       end
     end
@@ -85,6 +82,24 @@ module Amico
       return if from_id == to_id
 
       Amico.redis.zrem("#{Amico.namespace}:#{Amico.blocked_key}:#{from_id}", to_id)
+    end
+
+    # Accept a relationship that is pending between two IDs.
+    #
+    # @param from_id [String] The ID of the individual accepting the relationship.
+    # @param to_id [String] The ID of the individual to be accepted.
+    #
+    # Example
+    #
+    #   Amico.follow(1, 11)
+    #   Amico.pending?(1, 11) # true
+    #   Amico.accept(1, 11)
+    #   Amico.pending?(1, 11) # false
+    #   Amico.following?(1, 11) #true
+    def accept(from_id, to_id)
+      return if from_id == to_id
+
+      add_following_followers_reciprocated(from_id, to_id)
     end
 
     # Count the number of individuals that someone is following.
@@ -142,6 +157,21 @@ module Amico
     # @return the count of the number of individuals that have reciprocated a following relationship.
     def reciprocated_count(id)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:#{id}")
+    end
+
+    # Count the number of relationships pending for an individual.
+    #
+    # @param id [String] ID of the individual to retrieve pending count for.
+    # 
+    # Examples
+    #
+    #   Amico.follow(11, 1)
+    #   Amico.follow(12, 1)
+    #   Amico.pending_count(1) # 2
+    #
+    # @return the count of the number of relationships pending for an individual.
+    def pending_count(id)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_key}:#{id}")
     end
 
     # Check to see if one individual is following another individual.
@@ -203,6 +233,21 @@ module Amico
     # @return true if both individuals are following each other, false otherwise
     def reciprocated?(from_id, to_id)
       following?(from_id, to_id) && following?(to_id, from_id)
+    end
+
+    # Check to see if one individual has a pending relationship in following another individual.
+    #
+    # @param from_id [String] ID of the individual checking the pending relationships.
+    # @param to_id [String] ID of the individual to see if they are pending a follow from from_id.
+    #
+    # Examples
+    #
+    #   Amico.follow(1, 11)
+    #   Amico.pending?(1, 11) # true
+    #
+    # @return true if the relationship is pending, false otherwise
+    def pending?(from_id, to_id)
+      !Amico.redis.zscore("#{Amico.namespace}:#{Amico.pending_key}:#{to_id}", from_id).nil?
     end
 
     # Retrieve a page of followed individuals for a given ID.
@@ -271,6 +316,22 @@ module Amico
       members("#{Amico.namespace}:#{Amico.reciprocated_key}:#{id}", options)
     end
 
+    # Retrieve a page of pending relationships for a given ID.
+    #
+    # @param id [String] ID of the individual.
+    # @param options [Hash] Options to be passed for retrieving a page of pending relationships.
+    #
+    # Examples
+    #
+    #   Amico.follow(1, 11)
+    #   Amico.follow(2, 11)
+    #   Amico.pending(1, :page => 1)
+    #
+    # @return a page of pending relationships for a given ID.
+    def pending(id, options = default_options)
+      members("#{Amico.namespace}:#{Amico.pending_key}:#{id}", options)
+    end
+
     # Count the number of pages of following relationships for an individual.
     #
     # @param id [String] ID of the individual.
@@ -337,7 +398,31 @@ module Amico
       total_pages("#{Amico.namespace}:#{Amico.reciprocated_key}:#{id}", page_size)
     end
 
+    def pending_page_count(id, page_size = Amico.page_size)
+      total_pages("#{Amico.namespace}:#{Amico.pending_key}:#{id}", page_size)
+    end
+
     private
+
+    # Add the following, followers and check for a reciprocated relationship. To be used from the 
+    # +follow++ and ++accept++ methods.
+    #
+    # @param from_id [String] The ID of the individual establishing the follow relationship.
+    # @param to_id [String] The ID of the individual to be followed. 
+    def add_following_followers_reciprocated(from_id, to_id)
+      Amico.redis.multi do
+        Amico.redis.zadd("#{Amico.namespace}:#{Amico.following_key}:#{from_id}", Time.now.to_i, to_id)
+        Amico.redis.zadd("#{Amico.namespace}:#{Amico.followers_key}:#{to_id}", Time.now.to_i, from_id)
+        Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{to_id}", from_id)
+      end
+
+      if reciprocated?(from_id, to_id)
+        Amico.redis.multi do
+          Amico.redis.zadd("#{Amico.namespace}:#{Amico.reciprocated_key}:#{from_id}", Time.now.to_i, to_id)
+          Amico.redis.zadd("#{Amico.namespace}:#{Amico.reciprocated_key}:#{to_id}", Time.now.to_i, from_id)
+        end
+      end      
+    end
 
     # Default options for doing, for example, paging.
     #
