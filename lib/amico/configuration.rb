@@ -5,28 +5,28 @@ module Amico
     attr_accessor :redis
 
     # Amico namespace for Redis.
-    attr_accessor :namespace
+    attr_writer :namespace
 
     # Key used in Redis for tracking who an individual is following.
-    attr_accessor :following_key
+    attr_writer :following_key
 
     # Key used in Redis for tracking the followers of an individual.
-    attr_accessor :followers_key
+    attr_writer :followers_key
 
     # Key used in Redis for tracking who an individual blocks.
-    attr_accessor :blocked_key
+    attr_writer :blocked_key
 
     # Key used in Redis for tracking who has reciprocated a follow for an individual.
-    attr_accessor :reciprocated_key
+    attr_writer :reciprocated_key
 
     # Key used in Redis for tracking pending follow relationships for an individual.
-    attr_accessor :pending_key
+    attr_writer :pending_key
 
     # Key used to indicate whether or not a follow should be pending or not.
-    attr_accessor :pending_follow
+    attr_writer :pending_follow
 
     # Page size to be used when paging through the various types of relationships.
-    attr_accessor :page_size
+    attr_writer :page_size
 
     # Yield self to be able to configure Amico with block-style configuration.
     #
