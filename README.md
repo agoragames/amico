@@ -198,6 +198,7 @@ simple examples in the method documentation. You can also refer to the [online d
 
 ## Future Plans
 
+* Add examples to wiki to show usage of IDs with strings like usernames
 * Add :scope to various calls to allow you to use amico for different contexts
 
 ## FAQ?
