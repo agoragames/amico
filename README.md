@@ -191,6 +191,164 @@ Amico.reciprocated?(1, 11)
  => true 
 ```
 
+Use amico with nicknames instead of IDs. NOTE: This could cause you much hardship later on if you allow nicknames to change.
+
+```ruby
+require 'amico'
+ 
+Amico.configure do |configuration|
+  configuration.redis = Redis.new
+  configuration.namespace = 'amico'
+  configuration.following_key = 'following'
+  configuration.followers_key = 'followers'
+  configuration.blocked_key = 'blocked'
+  configuration.reciprocated_key = 'reciprocated'
+  configuration.pending_key = 'pending'
+  configuration.pending_follow = false
+  configuration.page_size = 25
+end
+
+Amico.follow('bob', 'jane')
+ 
+Amico.following?('bob', 'jane')
+ => true 
+
+Amico.following?('jane', 'bob')
+ => false 
+
+Amico.follow('jane', 'bob')
+
+Amico.following?('jane', 'bob')
+ => true 
+
+Amico.following_count('bob')
+ => 1 
+
+Amico.followers_count('bob')
+ => 1 
+
+Amico.unfollow('jane', 'bob')
+
+Amico.following_count('jane')
+ => 0
+
+Amico.following_count('bob')
+ => 1 
+
+Amico.follower?('bob', 'jane')
+ => false 
+
+Amico.follower?('jane', 'bob')
+ => true 
+
+Amico.following('bob')
+ => ["jane"] 
+
+Amico.block('bob', 'jane')
+
+Amico.following?('jane', 'bob')
+ => false 
+
+Amico.blocked?('bob', 'jane')
+ => true 
+
+Amico.blocked?('jane', 'bob')
+ => false 
+
+Amico.unblock('bob', 'jane')
+ => true 
+
+mico.blocked?('bob', 'jane')
+ => false 
+
+Amico.following?('jane', 'bob')
+ => false 
+
+Amico.follow('jane', 'bob')
+ => nil 
+
+Amico.follow('bob', 'jane')
+ => [1, 1] 
+
+Amico.reciprocated?('bob', 'jane')
+ => true 
+
+Amico.reciprocated('bob')
+ => ["jane"] 
+```
+
+Use amico with nicknames instead of IDs and pending follows. NOTE: This could cause you much hardship later on if you allow nicknames to change.
+
+```ruby
+require 'amico'
+ => true 
+
+Amico.configure do |configuration|
+  configuration.redis = Redis.new
+  configuration.namespace = 'amico'
+  configuration.following_key = 'following'
+  configuration.followers_key = 'followers'
+  configuration.blocked_key = 'blocked'
+  configuration.reciprocated_key = 'reciprocated'
+  configuration.pending_key = 'pending'
+  configuration.pending_follow = true
+  configuration.page_size = 25
+end
+
+Amico.follow('bob', 'jane')
+
+Amico.follow('jane', 'bob')
+
+Amico.pending?('bob', 'jane')
+ => true 
+
+Amico.pending?('jane', 'bob')
+ => true 
+
+Amico.accept('bob', 'jane')
+
+Amico.pending?('bob', 'jane')
+ => false 
+
+Amico.pending?('jane', 'bob')
+ => true 
+
+Amico.following?('bob', 'jane')
+ => true 
+
+Amico.following?('jane', 'bob')
+ => false 
+
+Amico.follower?('jane', 'bob')
+ => true 
+
+Amico.follower?('bob', 'jane')
+ => false 
+
+Amico.accept('jane', 'bob')
+
+Amico.pending?('bob', 'jane')
+ => false 
+
+Amico.pending?('jane', 'bob')
+ => false 
+
+Amico.following?('bob', 'jane')
+ => true 
+
+Amico.following?('jane', 'bob')
+ => true 
+
+Amico.follower?('jane', 'bob')
+ => true 
+
+Amico.follower?('bob', 'jane')
+ => true 
+
+Amico.reciprocated?('bob', 'jane')
+ => true 
+```
+
 ## Documentation 
 
 The source for the [relationships module](https://github.com/agoragames/amico/blob/master/lib/amico/relationships.rb) is well-documented. There are some 
@@ -198,7 +356,6 @@ simple examples in the method documentation. You can also refer to the [online d
 
 ## Future Plans
 
-* Add examples to wiki to show usage of IDs with strings like usernames
 * Add :scope to various calls to allow you to use amico for different contexts
 
 ## FAQ?
