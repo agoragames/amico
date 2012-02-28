@@ -397,11 +397,11 @@ describe Amico::Relationships do
       Amico.following?(1, 11).should be_true
       Amico.following?(1, 11, 'user').should be_true
       Amico.following(1).should eql(["11"])
-      Amico.following(1, Amico.default_options, 'user').should eql(["11"])
+      Amico.following(1, {:page_size => Amico.page_size, :page => 1}, 'user').should eql(["11"])
       Amico.following?(1, 11, 'project').should be_false
       Amico.follow(1, 11, 'project')
       Amico.following?(1, 11, 'project').should be_true
-      Amico.following(1, Amico.default_options, 'project').should eql(["11"])
+      Amico.following(1, {:page_size => Amico.page_size, :page => 1}, 'project').should eql(["11"])
     end
   end
 

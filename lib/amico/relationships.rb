@@ -5,7 +5,8 @@ module Amico
     # relationship if so.
     # 
     # @param from_id [String] The ID of the individual establishing the follow relationship.
-    # @param to_id [String] The ID of the individual to be followed. 
+    # @param to_id [String] The ID of the individual to be followed.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -28,6 +29,7 @@ module Amico
     #
     # @param from_id [String] The ID of the individual removing the follow relationship.
     # @param to_id [String] The ID of the individual to be unfollowed.
+    # @param scope [String] Scope for the call
     # 
     # Examples
     #
@@ -50,6 +52,7 @@ module Amico
     #
     # @param from_id [String] The ID of the individual blocking the relationship.
     # @param to_id [String] The ID of the individual being blocked.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -73,6 +76,7 @@ module Amico
     #
     # @param from_id [String] The ID of the individual unblocking the relationship.
     # @param to_id [String] The ID of the blocked individual.
+    # @param scope [String] Scope for the call
     # 
     # Examples
     # 
@@ -88,6 +92,7 @@ module Amico
     #
     # @param from_id [String] The ID of the individual accepting the relationship.
     # @param to_id [String] The ID of the individual to be accepted.
+    # @param scope [String] Scope for the call
     #
     # Example
     #
@@ -105,6 +110,7 @@ module Amico
     # Count the number of individuals that someone is following.
     #
     # @param id [String] ID of the individual to retrieve following count for.
+    # @param scope [String] Scope for the call
     # 
     # Examples
     # 
@@ -119,6 +125,7 @@ module Amico
     # Count the number of individuals that are following someone.
     #
     # @param id [String] ID of the individual to retrieve followers count for.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -133,6 +140,7 @@ module Amico
     # Count the number of individuals that someone has blocked.
     #
     # @param id [String] ID of the individual to retrieve blocked count for.
+    # @param scope [String] Scope for the call
     # 
     # Examples
     #
@@ -147,6 +155,7 @@ module Amico
     # Count the number of individuals that have reciprocated a following relationship.
     #
     # @param id [String] ID of the individual to retrieve reciprocated following count for.
+    # @param scope [String] Scope for the call
     # 
     # Examples
     # 
@@ -162,6 +171,7 @@ module Amico
     # Count the number of relationships pending for an individual.
     #
     # @param id [String] ID of the individual to retrieve pending count for.
+    # @param scope [String] Scope for the call
     # 
     # Examples
     #
@@ -178,6 +188,7 @@ module Amico
     #
     # @param id [String] ID of the individual checking the following status.
     # @param following_id [String] ID of the individual to see if they are being followed by id.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -193,6 +204,7 @@ module Amico
     #
     # @param id [String] ID of the individual checking the follower status.
     # @param following_id [String] ID of the individual to see if they are following id.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -208,6 +220,7 @@ module Amico
     #
     # @param id [String] ID of the individual checking the blocked status.
     # @param blocked_id [String] ID of the individual to see if they are blocked by id.
+    # @param scope [String] Scope for the call
     #
     # Examples
     # 
@@ -223,6 +236,7 @@ module Amico
     #
     # @param from_id [String] ID of the individual checking the reciprocated relationship.
     # @param to_id [String] ID of the individual to see if they are following from_id.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -239,6 +253,7 @@ module Amico
     #
     # @param from_id [String] ID of the individual checking the pending relationships.
     # @param to_id [String] ID of the individual to see if they are pending a follow from from_id.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -254,6 +269,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param options [Hash] Options to be passed for retrieving a page of followed individuals.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -270,6 +286,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param options [Hash] Options to be passed for retrieving a page of followers.
+    # @param scope [String] Scope for the call
     #
     # Examples
     # 
@@ -286,6 +303,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param options [Hash] Options to be passed for retrieving a page of blocked individuals.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -302,6 +320,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param options [Hash] Options to be passed for retrieving a page of individuals that have reciprocated a follow.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -320,6 +339,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param options [Hash] Options to be passed for retrieving a page of pending relationships.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -336,6 +356,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param page_size [int] Page size.
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -352,6 +373,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param page_size [int] Page size (default: Amico.page_size).
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -368,6 +390,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param page_size [int] Page size (default: Amico.page_size).
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -384,6 +407,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param page_size [int] Page size (default: Amico.page_size).
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -402,6 +426,7 @@ module Amico
     #
     # @param id [String] ID of the individual.
     # @param page_size [int] Page size (default: Amico.page_size).
+    # @param scope [String] Scope for the call
     #
     # Examples
     #
@@ -412,7 +437,9 @@ module Amico
     # @return the number of pages of pending relationships for an individual.
     def pending_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
       total_pages("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}", page_size)
-    end
+    end    
+
+    private
 
     # Default options for doing, for example, paging.
     #
@@ -420,8 +447,6 @@ module Amico
     def default_options
       {:page_size => Amico.page_size, :page => 1}
     end
-
-    private
 
     # Add the following, followers and check for a reciprocated relationship. To be used from the 
     # +follow++ and ++accept++ methods.
