@@ -25,6 +25,9 @@ module Amico
     # Key used to indicate whether or not a follow should be pending or not.
     attr_writer :pending_follow
 
+    # Default key used to indicate the scope for the current call
+    attr_writer :default_scope_key
+
     # Page size to be used when paging through the various types of relationships.
     attr_writer :page_size
 
@@ -40,6 +43,7 @@ module Amico
     #     configuration.blocked_key = 'blocked'
     #     configuration.reciprocated_key = 'reciprocated'
     #     configuration.pending_key = 'pending'
+    #     configuration.default_scope_key = 'default'
     #     configuration.pending_follow = false
     #     configuration.page_size = 25
     #   end
@@ -87,6 +91,13 @@ module Amico
     # @return the key used in Redis for tracking pending follow relationships for an individual.
     def pending_key
       @pending_key ||= 'pending'
+    end
+
+    # Default key used in Redis for tracking scope for the given relationship calls.
+    #
+    # @return the default key used in Redis for tracking scope for the given relationship calls.
+    def default_scope_key
+      @default_scope_key ||= 'default'
     end
 
     # Key used to indicate whether or not a follow should be pending or not.
