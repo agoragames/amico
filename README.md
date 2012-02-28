@@ -383,7 +383,7 @@ Amico.following?(1, 11, 'user')
 Amico.following(1)
  => ["11"] 
 
-Amico.following(1, Amico.default_options, 'user')
+Amico.following(1, {:page_size => Amico.page_size, :page => 1}, 'user')
  => ["11"] 
 
 Amico.following?(1, 11, 'project')
@@ -394,7 +394,7 @@ Amico.follow(1, 11, 'project')
 Amico.following?(1, 11, 'project')
  => true 
 
-Amico.following(1, Amico.default_options, 'project')
+Amico.following(1, {:page_size => Amico.page_size, :page => 1}, 'project')
  => ["11"]
 ```
 
