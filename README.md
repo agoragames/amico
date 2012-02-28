@@ -405,8 +405,6 @@ simple examples in the method documentation. You can also refer to the [online d
 
 ## Future Plans
 
-* Add :scope to various calls to allow you to use amico for different contexts
-
 ## FAQ?
 
 ### Why use Redis sorted sets and not Redis sets?
