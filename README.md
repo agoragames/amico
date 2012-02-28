@@ -28,6 +28,7 @@ Amico.configure do |configuration|
   configuration.blocked_key = 'blocked'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
 end
@@ -47,6 +48,7 @@ Amico.configure do |configuration|
   configuration.blocked_key = 'blocked'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
 end
@@ -129,6 +131,7 @@ Amico.configure do |configuration|
   configuration.blocked_key = 'blocked'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.default_scope_key = 'default'
   configuration.pending_follow = true
   configuration.page_size = 25
 end
@@ -204,6 +207,7 @@ Amico.configure do |configuration|
   configuration.blocked_key = 'blocked'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
 end
@@ -291,6 +295,7 @@ Amico.configure do |configuration|
   configuration.blocked_key = 'blocked'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.default_scope_key = 'default'
   configuration.pending_follow = true
   configuration.page_size = 25
 end
@@ -347,6 +352,50 @@ Amico.follower?('bob', 'jane')
 
 Amico.reciprocated?('bob', 'jane')
  => true 
+```
+
+All of the calls support a `scope` parameter to allow you to scope the calls to express relationships for different types of things. For example:
+
+```ruby
+require 'amico'
+
+Amico.configure do |configuration|
+  configuration.redis = Redis.new
+  configuration.namespace = 'amico'
+  configuration.following_key = 'following'
+  configuration.followers_key = 'followers'
+  configuration.blocked_key = 'blocked'
+  configuration.reciprocated_key = 'reciprocated'
+  configuration.pending_key = 'pending'
+  configuration.default_scope_key = 'user'
+  configuration.pending_follow = false
+  configuration.page_size = 25
+end
+
+Amico.follow(1, 11)
+
+Amico.following?(1, 11)
+ => true 
+
+Amico.following?(1, 11, 'user')
+ => true 
+
+Amico.following(1)
+ => ["11"] 
+
+Amico.following(1, Amico.default_options, 'user')
+ => ["11"] 
+
+Amico.following?(1, 11, 'project')
+ => false 
+
+Amico.follow(1, 11, 'project')
+
+Amico.following?(1, 11, 'project')
+ => true 
+
+Amico.following(1, Amico.default_options, 'project')
+ => ["11"]
 ```
 
 ## Documentation 
