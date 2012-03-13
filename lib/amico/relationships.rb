@@ -444,7 +444,7 @@ module Amico
     # @param id [String] ID of the individual.
     # @param type [Symbol] One of :following, :followers, :blocked, :reciprocated, :pending
     # @param scope [String] Scope for the call.
-    def get_all(id, type, scope = Amico.default_scope_key)
+    def all(id, type, scope = Amico.default_scope_key)
       valid_types = [:following, :followers, :blocked, :reciprocated, :pending]
       raise "Must be one of #{valid_types.to_s}" if !valid_types.include?(type)
       count = self.send("#{type.to_s}_count".to_sym, id, scope)
