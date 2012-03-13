@@ -405,6 +405,49 @@ describe Amico::Relationships do
     end
   end
 
+  describe '#get_all' do
+    it 'should raise an exception if passing an invalid type' do
+      lambda {Amico.get_all(1, :unknown)}.should raise_error      
+    end
+
+    it 'should return the correct list when calling get_all for various types' do
+      add_reciprocal_followers(5)
+
+      [:following, :followers, :reciprocated].each do |type|
+        list = Amico.get_all(1, type)
+        # It is 29, not 30, since you cannot follow yourself
+        list.length.should be(4)
+      end
+    end
+
+    it 'should return the correct list when calling get_all for a pending relationship' do
+      Amico.pending_follow = true
+      add_reciprocal_followers(5)
+
+      [:following, :followers, :reciprocated].each do |type|
+        list = Amico.get_all(1, type)
+        list.length.should be(0)
+      end
+
+      pending_list = Amico.get_all(1, :pending)
+      pending_list.length.should be(4)
+
+      Amico.pending_follow = false
+    end
+
+    it 'should return the correct list when calling get_all for a blocked relationship' do
+      add_reciprocal_followers(5, true)
+
+      [:following, :followers, :reciprocated].each do |type|
+        list = Amico.get_all(1, type)
+        list.length.should be(0)
+      end
+
+      blocked_list = Amico.get_all(1, :blocked)
+      blocked_list.length.should be(4)
+    end
+  end
+
   private
 
   def add_reciprocal_followers(count = 26, block_relationship = false)
