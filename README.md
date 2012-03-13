@@ -398,6 +398,20 @@ Amico.following(1, {:page_size => Amico.page_size, :page => 1}, 'project')
  => ["11"]
 ```
 
+You can retrieve all of a particular type of relationship using the `all(id, type, scope)` call. For example:
+
+```ruby
+Amico.follow(1, 11)
+ => nil 
+Amico.follow(1, 12)
+ => nil 
+Amico.all(1, :following)
+ => ["12", "11"] 
+```
+
+`type` can be one of :following, :followers, :blocked, :reciprocated, :pending. Use this with caution 
+as there may potentially be a large number of items that could be returned from this call. 
+
 ## Documentation 
 
 The source for the [relationships module](https://github.com/agoragames/amico/blob/master/lib/amico/relationships.rb) is well-documented. There are some 
