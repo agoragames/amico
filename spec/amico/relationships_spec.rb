@@ -448,6 +448,40 @@ describe Amico::Relationships do
     end
   end
 
+  describe '#following with options and scope' do
+    it 'should allow you to pass in an empty set of options that will use the default options' do
+      add_reciprocal_followers(5)
+
+      following = Amico.following(1, {}, Amico.default_scope_key)
+      following.length.should be(4)
+    end
+
+    it 'should allow you to pass in options that will override the option in the default options' do
+      add_reciprocal_followers(5)
+
+      following = Amico.following(1, {:page_size => 1}, Amico.default_scope_key)
+      following.length.should be(1)
+    end
+
+    it 'should allow you to pass in an empty set of options that will use the default options with a custom scope' do
+      Amico.default_scope_key = 'friends'
+      add_reciprocal_followers(5)
+
+      following = Amico.following(1, {}, 'friends')
+      following.length.should be(4)
+      Amico.default_scope_key = 'default'
+    end
+
+    it 'should allow you to pass in options that will override the option in the default options with a custom scope' do
+      Amico.default_scope_key = 'friends'
+      add_reciprocal_followers(5)
+
+      following = Amico.following(1, {:page_size => 1}, 'friends')
+      following.length.should be(1)
+      Amico.default_scope_key = 'default'
+    end
+  end
+
   private
 
   def add_reciprocal_followers(count = 26, block_relationship = false)

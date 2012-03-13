@@ -268,7 +268,7 @@ module Amico
     # Retrieve a page of followed individuals for a given ID.
     #
     # @param id [String] ID of the individual.
-    # @param options [Hash] Options to be passed for retrieving a page of followed individuals.
+    # @param page_options [Hash] Options to be passed for retrieving a page of followed individuals.
     # @param scope [String] Scope for the call.
     #
     # Examples
@@ -278,14 +278,14 @@ module Amico
     #   Amico.following(1, :page => 1)
     #
     # @return a page of followed individuals for a given ID.
-    def following(id, options = default_options, scope = Amico.default_scope_key)
-      members("#{Amico.namespace}:#{Amico.following_key}:#{scope}:#{id}", options)
+    def following(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+      members("#{Amico.namespace}:#{Amico.following_key}:#{scope}:#{id}", page_options)
     end
 
     # Retrieve a page of followers for a given ID.
     #
     # @param id [String] ID of the individual.
-    # @param options [Hash] Options to be passed for retrieving a page of followers.
+    # @param page_options [Hash] Options to be passed for retrieving a page of followers.
     # @param scope [String] Scope for the call.
     #
     # Examples
@@ -295,14 +295,14 @@ module Amico
     #   Amico.followers(1, :page => 1)
     #
     # @return a page of followers for a given ID.
-    def followers(id, options = default_options, scope = Amico.default_scope_key)
-      members("#{Amico.namespace}:#{Amico.followers_key}:#{scope}:#{id}", options)
+    def followers(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+      members("#{Amico.namespace}:#{Amico.followers_key}:#{scope}:#{id}", page_options)
     end
 
     # Retrieve a page of blocked individuals for a given ID.
     #
     # @param id [String] ID of the individual.
-    # @param options [Hash] Options to be passed for retrieving a page of blocked individuals.
+    # @param page_options [Hash] Options to be passed for retrieving a page of blocked individuals.
     # @param scope [String] Scope for the call.
     #
     # Examples
@@ -312,14 +312,14 @@ module Amico
     #   Amico.blocked(1, :page => 1)
     #
     # @return a page of blocked individuals for a given ID.
-    def blocked(id, options = default_options, scope = Amico.default_scope_key)
-      members("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}", options)
+    def blocked(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+      members("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}", page_options)
     end
 
     # Retrieve a page of individuals that have reciprocated a follow for a given ID.
     #
     # @param id [String] ID of the individual.
-    # @param options [Hash] Options to be passed for retrieving a page of individuals that have reciprocated a follow.
+    # @param page_options [Hash] Options to be passed for retrieving a page of individuals that have reciprocated a follow.
     # @param scope [String] Scope for the call.
     #
     # Examples
@@ -331,14 +331,14 @@ module Amico
     #   Amico.reciprocated(1, :page => 1)
     #
     # @return a page of individuals that have reciprocated a follow for a given ID.
-    def reciprocated(id, options = default_options, scope = Amico.default_scope_key)
-      members("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{id}", options)
+    def reciprocated(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+      members("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{id}", page_options)
     end
 
     # Retrieve a page of pending relationships for a given ID.
     #
     # @param id [String] ID of the individual.
-    # @param options [Hash] Options to be passed for retrieving a page of pending relationships.
+    # @param page_options [Hash] Options to be passed for retrieving a page of pending relationships.
     # @param scope [String] Scope for the call.
     #
     # Examples
@@ -348,8 +348,8 @@ module Amico
     #   Amico.pending(1, :page => 1)
     #
     # @return a page of pending relationships for a given ID.
-    def pending(id, options = default_options, scope = Amico.default_scope_key)
-      members("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}", options)
+    def pending(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+      members("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}", page_options)
     end
 
     # Count the number of pages of following relationships for an individual.
@@ -453,10 +453,10 @@ module Amico
 
     private
 
-    # Default options for doing, for example, paging.
+    # Default paging options.
     #
-    # @return a hash of the default options.
-    def default_options
+    # @return a hash of the default paging options.
+    def default_paging_options
       {:page_size => Amico.page_size, :page => 1}
     end
 
@@ -496,8 +496,8 @@ module Amico
     # @param options [Hash] Default options for paging.
     #
     # @return a page of items from a Redis sorted set without scores.
-    def members(key, options = default_options)
-      options = default_options.dup.merge!(options)
+    def members(key, options = default_paging_options)
+      options = default_paging_options.dup.merge!(options)
       if options[:page] < 1
         options[:page] = 1
       end
