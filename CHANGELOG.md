@@ -1,6 +1,7 @@
 # 2.0.1
 
 * Added `Amico.all(id, type, scope)` to retrieve all of the individuals for a given id, type (e.g. following) and scope. Thanks to @mettadore for the initial code and inspiration.
+* Clarified parameters in following, followers, blocked, reciprocated, and pending calls.
 
 # 2.0.0
 
