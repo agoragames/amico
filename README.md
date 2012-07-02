@@ -262,7 +262,7 @@ Amico.blocked?('jane', 'bob')
 Amico.unblock('bob', 'jane')
  => true 
 
-mico.blocked?('bob', 'jane')
+Amico.blocked?('bob', 'jane')
  => false 
 
 Amico.following?('jane', 'bob')
