@@ -412,6 +412,37 @@ Amico.all(1, :following)
 `type` can be one of :following, :followers, :blocked, :reciprocated, :pending. Use this with caution 
 as there may potentially be a large number of items that could be returned from this call. 
 
+## Method Summary
+
+```ruby
+follow(from_id, to_id, scope = Amico.default_scope_key) # Establish a follow relationship between two IDs.
+unfollow(from_id, to_id, scope = Amico.default_scope_key) # Remove a follow relationship between two IDs.
+block(from_id, to_id, scope = Amico.default_scope_key) # Block a relationship between two IDs.
+unblock(from_id, to_id, scope = Amico.default_scope_key) # Unblock a relationship between two IDs.
+accept(from_id, to_id, scope = Amico.default_scope_key) # Accept a relationship that is pending between two IDs.
+following_count(id, scope = Amico.default_scope_key) # Count the number of individuals that someone is following.
+followers_count(id, scope = Amico.default_scope_key) # Count the number of individuals that are following someone.
+blocked_count(id, scope = Amico.default_scope_key) # Count the number of individuals that someone has blocked.
+reciprocated_count(id, scope = Amico.default_scope_key) # Count the number of individuals that have reciprocated a following relationship.
+pending_count(id, scope = Amico.default_scope_key) # Count the number of relationships pending for an individual.
+following?(id, following_id, scope = Amico.default_scope_key) # Check to see if one individual is following another individual.
+follower?(id, follower_id, scope = Amico.default_scope_key) # Check to see if one individual is a follower of another individual.
+blocked?(id, blocked_id, scope = Amico.default_scope_key) # Check to see if one individual has blocked another individual.
+reciprocated?(from_id, to_id, scope = Amico.default_scope_key) # Check to see if one individual has reciprocated in following another individual.
+pending?(from_id, to_id, scope = Amico.default_scope_key) # Check to see if one individual has a pending relationship in following another individual.
+following(id, page_options = default_paging_options, scope = Amico.default_scope_key) # Retrieve a page of followed individuals for a given ID.
+followers(id, page_options = default_paging_options, scope = Amico.default_scope_key) # Retrieve a page of followers for a given ID.
+blocked(id, page_options = default_paging_options, scope = Amico.default_scope_key) # Retrieve a page of blocked individuals for a given ID.
+reciprocated(id, page_options = default_paging_options, scope = Amico.default_scope_key) # Retrieve a page of individuals that have reciprocated a follow for a given ID.
+pending(id, page_options = default_paging_options, scope = Amico.default_scope_key) # Retrieve a page of pending relationships for a given ID.
+following_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key) # Count the number of pages of following relationships for an individual.
+followers_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key) # Count the number of pages of follower relationships for an individual.
+blocked_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key) # Count the number of pages of blocked relationships for an individual.
+reciprocated_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key) # Count the number of pages of reciprocated relationships for an individual.
+pending_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key) # Count the number of pages of pending relationships for an individual.
+all(id, type, scope = Amico.default_scope_key) # Retrieve all of the individuals for a given id, type (e.g. following) and scope
+```
+
 ## Documentation 
 
 The source for the [relationships module](https://github.com/agoragames/amico/blob/master/lib/amico/relationships.rb) is well-documented. There are some 
