@@ -482,6 +482,48 @@ describe Amico::Relationships do
     end
   end
 
+  describe '#count' do
+    it 'should return the correct count for the various types of relationships' do
+      add_reciprocal_followers(5)
+
+      Amico.count(1, :following).should == 4
+      Amico.count(1, :followers).should == 4
+      Amico.count(1, :reciprocated).should == 4
+
+      Amico.redis.flushdb
+      add_reciprocal_followers(5, true)
+
+      Amico.count(1, :blocked).should == 4
+
+      Amico.redis.flushdb
+      Amico.pending_follow = true
+      add_reciprocal_followers(5)
+
+      Amico.count(1, :pending).should == 4
+    end
+  end
+
+  describe '#page_count' do
+    it 'should return the correct page count for the various types of relationships' do    
+      add_reciprocal_followers(5)
+
+      Amico.page_count(1, :following).should == 1
+      Amico.page_count(1, :followers).should == 1
+      Amico.page_count(1, :reciprocated).should == 1
+
+      Amico.redis.flushdb
+      add_reciprocal_followers(5, true)
+
+      Amico.page_count(1, :blocked).should == 1
+
+      Amico.redis.flushdb
+      Amico.pending_follow = true
+      add_reciprocal_followers(5)
+
+      Amico.page_count(1, :pending).should == 1
+    end
+  end
+
   private
 
   def add_reciprocal_followers(count = 26, block_relationship = false)
