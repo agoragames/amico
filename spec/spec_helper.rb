@@ -15,8 +15,10 @@ RSpec.configure do |config|
       configuration.following_key = 'following'
       configuration.followers_key = 'followers'
       configuration.blocked_key = 'blocked'
+      configuration.blocked_by_key = 'blocked_by'
       configuration.reciprocated_key = 'reciprocated'
       configuration.pending_key = 'pending'
+      configuration.pending_with_key = 'pending_with'
       configuration.default_scope_key = 'default'
       configuration.pending_follow = false
       configuration.page_size = 25
