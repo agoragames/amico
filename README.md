@@ -427,6 +427,8 @@ block(from_id, to_id, scope = Amico.default_scope_key)
 unblock(from_id, to_id, scope = Amico.default_scope_key)
 # Accept a relationship that is pending between two IDs.
 accept(from_id, to_id, scope = Amico.default_scope_key)
+# Clear all relationships (in either direction) for a given ID.
+clear(id, scope = Amico.default_scope_key)
 
 # Retrieval
 
