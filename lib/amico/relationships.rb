@@ -114,6 +114,31 @@ module Amico
 	  add_following_followers_reciprocated(from_id, to_id, scope)
 	end
 
+  # Clears all relationships (in either direction) stored for an individual.
+  # Helpful to prevent orphaned associations when deleting users.
+  # 
+  # @param id [String] ID of the individual to clear info for.
+  # @param scope [String] Scope for the call.
+  # 
+  # Examples
+  # 
+  #   Amico.follow(1, 11)
+  #   Amico.followers_count(11)  => 1
+  #   Amico.clear(1)
+  #   Amico.followers_count(11)  => 0
+  def clear(id, scope = Amico.default_scope_key)
+    # no longer following (or followed by) anyone
+    clear_bidirectional_sets_for_id(id, Amico.following_key, Amico.followers_key, scope)
+    clear_bidirectional_sets_for_id(id, Amico.followers_key, Amico.following_key, scope)
+    clear_bidirectional_sets_for_id(id, Amico.reciprocated_key, Amico.reciprocated_key, scope)
+    # no longer blocked by (or blocking) anyone
+    clear_bidirectional_sets_for_id(id, Amico.blocked_by_key, Amico.blocked_key, scope)
+    clear_bidirectional_sets_for_id(id, Amico.blocked_key, Amico.blocked_by_key, scope)
+    # no longer pending with anyone (or have any pending followers)
+    clear_bidirectional_sets_for_id(id, Amico.pending_with_key, Amico.pending_key, scope)
+    clear_bidirectional_sets_for_id(id, Amico.pending_key, Amico.pending_with_key, scope)
+  end
+
 	# Count the number of individuals that someone is following.
 	#
 	# @param id [String] ID of the individual to retrieve following count for.
@@ -510,6 +535,20 @@ module Amico
 		end
 	  end      
 	end
+
+	# Removes references to an individual in sets that are named with other individual's keys.
+	# Assumes two set keys that are used together such as followers/following, blocked/blocked_by, etc...
+	#
+	# @param id [String] The ID of the individual to clear info for.
+	# @param source_set_key [String] The key identifying the souce set to iterate over.
+	# @param related_set_key [String] The key identifying the sets that the idividual needs to be removed from.
+  # @param scope [String] Scope for the call.
+  def clear_bidirectional_sets_for_id(id, source_set_key, related_set_key, scope = Amico.default_scope_key)
+    Amico.redis.zrange("#{Amico.namespace}:#{source_set_key}:#{scope}:#{id}", 0, -1).each do |related_id|
+      Amico.redis.zrem("#{Amico.namespace}:#{related_set_key}:#{scope}:#{related_id}", id)
+    end
+    Amico.redis.del("#{Amico.namespace}:#{source_set_key}:#{scope}:#{id}")
+  end
 
 	# Count the total number of pages for a given key in a Redis sorted set.
 	#

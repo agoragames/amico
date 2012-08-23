@@ -531,6 +531,45 @@ describe Amico::Relationships do
     end
   end
 
+
+
+  describe '#clear' do
+    it 'should remove follower/following relationships' do
+      Amico.follow(1, 11)
+      Amico.follow(11, 1)
+      
+      Amico.following_count(1).should be(1)
+      Amico.followers_count(1).should be(1)
+      Amico.reciprocated_count(1).should be(1)
+      Amico.following_count(11).should be(1)
+      Amico.followers_count(11).should be(1)
+      Amico.reciprocated_count(11).should be(1)
+      
+      Amico.clear(1)
+      
+      Amico.following_count(1).should be(0)
+      Amico.followers_count(1).should be(0)
+      Amico.reciprocated_count(1).should be(0)
+      Amico.following_count(11).should be(0)
+      Amico.followers_count(11).should be(0)
+      Amico.reciprocated_count(11).should be(0)
+    end
+    it 'should clear pending/pending_with relationships' do
+      Amico.pending_follow = true
+      Amico.follow(1, 11)
+      Amico.pending_count(11).should be(1)
+      Amico.clear(1)
+      Amico.pending_count(11).should be(0)
+    end
+    it 'should clear blocked/blocked_by relationships' do
+      Amico.block(1, 11)
+      Amico.blocked_count(1).should be(1)
+      Amico.clear(11)
+      Amico.blocked_count(1).should be(0)
+    end
+  end
+
+
   private
 
   def add_reciprocal_followers(count = 26, block_relationship = false)
