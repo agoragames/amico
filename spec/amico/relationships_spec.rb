@@ -46,8 +46,8 @@ describe Amico::Relationships do
       Amico.follow(11, 1)
       Amico.block(1, 11)
 
-      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0) 
-      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1) 
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:#{Amico.default_scope_key}:1").should be(0)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:#{Amico.default_scope_key}:11").should be(0)
     end
@@ -55,20 +55,20 @@ describe Amico::Relationships do
     it 'should allow you to block someone who is not following you' do
       Amico.block(1, 11)
 
-      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0) 
-      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1) 
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1)
     end
 
     it 'should not allow someone you have blocked to follow you' do
       Amico.block(1, 11)
 
-      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0) 
-      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1) 
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1)
 
       Amico.follow(11, 1)
 
-      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0) 
-      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1) 
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1)
     end
 
     it 'should not allow you to block yourself' do
@@ -82,7 +82,7 @@ describe Amico::Relationships do
       Amico.block(1, 11)
       Amico.blocked?(1, 11).should be_true
       Amico.unblock(1, 11)
-      Amico.blocked?(1, 11).should be_false      
+      Amico.blocked?(1, 11).should be_false
     end
   end
 
@@ -139,7 +139,7 @@ describe Amico::Relationships do
 
     it 'should page correctly' do
       add_reciprocal_followers
-      
+
       Amico.following(1, :page => 1, :page_size => 5).size.should be(5)
       Amico.following(1, :page => 1, :page_size => 10).size.should be(10)
       Amico.following(1, :page => 1, :page_size => 26).size.should be(25)
@@ -407,7 +407,7 @@ describe Amico::Relationships do
 
   describe '#all' do
     it 'should raise an exception if passing an invalid type' do
-      lambda {Amico.all(1, :unknown)}.should raise_error      
+      lambda {Amico.all(1, :unknown)}.should raise_error
     end
 
     it 'should return the correct list when calling all for various types' do
@@ -486,41 +486,41 @@ describe Amico::Relationships do
     it 'should return the correct count for the various types of relationships' do
       add_reciprocal_followers(5)
 
-      Amico.count(1, :following).should == 4
-      Amico.count(1, :followers).should == 4
-      Amico.count(1, :reciprocated).should == 4
+      Amico.count(1, :following).should eql(4)
+      Amico.count(1, :followers).should eql(4)
+      Amico.count(1, :reciprocated).should eql(4)
 
       Amico.redis.flushdb
       add_reciprocal_followers(5, true)
 
-      Amico.count(1, :blocked).should == 4
+      Amico.count(1, :blocked).should eql(4)
 
       Amico.redis.flushdb
       Amico.pending_follow = true
       add_reciprocal_followers(5)
 
-      Amico.count(1, :pending).should == 4
+      Amico.count(1, :pending).should eql(4)
     end
   end
 
   describe '#page_count' do
-    it 'should return the correct page count for the various types of relationships' do    
+    it 'should return the correct page count for the various types of relationships' do
       add_reciprocal_followers(5)
 
-      Amico.page_count(1, :following).should == 1
-      Amico.page_count(1, :followers).should == 1
-      Amico.page_count(1, :reciprocated).should == 1
+      Amico.page_count(1, :following).should eql(1)
+      Amico.page_count(1, :followers).should eql(1)
+      Amico.page_count(1, :reciprocated).should eql(1)
 
       Amico.redis.flushdb
       add_reciprocal_followers(5, true)
 
-      Amico.page_count(1, :blocked).should == 1
+      Amico.page_count(1, :blocked).should eql(1)
 
       Amico.redis.flushdb
       Amico.pending_follow = true
       add_reciprocal_followers(5)
 
-      Amico.page_count(1, :pending).should == 1
+      Amico.page_count(1, :pending).should eql(1)
     end
   end
 
