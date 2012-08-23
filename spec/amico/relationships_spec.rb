@@ -48,6 +48,7 @@ describe Amico::Relationships do
 
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_by_key}:#{Amico.default_scope_key}:11").should be(1)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:#{Amico.default_scope_key}:1").should be(0)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.reciprocated_key}:#{Amico.default_scope_key}:11").should be(0)
     end
@@ -57,6 +58,7 @@ describe Amico::Relationships do
 
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:11").should be(0)
       Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{Amico.default_scope_key}:1").should be(1)
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_by_key}:#{Amico.default_scope_key}:11").should be(1)
     end
 
     it 'should not allow someone you have blocked to follow you' do
@@ -81,8 +83,10 @@ describe Amico::Relationships do
     it 'should allow you to unblock someone you have blocked' do
       Amico.block(1, 11)
       Amico.blocked?(1, 11).should be_true
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_by_key}:#{Amico.default_scope_key}:11").should be(1)
       Amico.unblock(1, 11)
       Amico.blocked?(1, 11).should be_false
+      Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_by_key}:#{Amico.default_scope_key}:11").should be(0)
     end
   end
 
@@ -285,6 +289,7 @@ describe Amico::Relationships do
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:1").should be(0)
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:#{Amico.default_scope_key}:11").should be(0)
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_key}:#{Amico.default_scope_key}:11").should be(1)
+        Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_with_key}:#{Amico.default_scope_key}:1").should be(1)
       end
 
       it 'should remove the pending relationship if you have a pending follow, but you unfollow' do
@@ -293,12 +298,14 @@ describe Amico::Relationships do
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:1").should be(0)
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:#{Amico.default_scope_key}:11").should be(0)
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_key}:#{Amico.default_scope_key}:11").should be(1)
+        Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_with_key}:#{Amico.default_scope_key}:1").should be(1)
 
         Amico.unfollow(1, 11)
 
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.following_key}:#{Amico.default_scope_key}:1").should be(0)
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.followers_key}:#{Amico.default_scope_key}:11").should be(0)
         Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_key}:#{Amico.default_scope_key}:11").should be(0)
+        Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_with_key}:#{Amico.default_scope_key}:1").should be(0)
       end
 
       it 'should remove the pending relationship and add to following and followers if #accept is called' do

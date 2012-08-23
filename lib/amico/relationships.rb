@@ -20,6 +20,7 @@ module Amico
 		  add_following_followers_reciprocated(from_id, to_id, scope)
 	  else
 		  Amico.redis.zadd("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)
+		  Amico.redis.zadd("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
 	  end
 	end
 
@@ -44,6 +45,7 @@ module Amico
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{from_id}", to_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{to_id}", from_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id)
+		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", to_id)
 	  end
 	end  
 
@@ -68,7 +70,9 @@ module Amico
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{from_id}", to_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{to_id}", from_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{from_id}", to_id)
+		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{to_id}", from_id)
 		Amico.redis.zadd("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
+		Amico.redis.zadd("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)
 	  end
 	end
 
@@ -85,7 +89,10 @@ module Amico
 	def unblock(from_id, to_id, scope = Amico.default_scope_key)
 	  return if from_id == to_id
 
-	  Amico.redis.zrem("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{from_id}", to_id)
+		Amico.redis.multi do
+			Amico.redis.zrem("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{from_id}", to_id)
+			Amico.redis.zrem("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{to_id}", from_id)
+		end
 	end
 
 	# Accept a relationship that is pending between two IDs.
@@ -493,6 +500,7 @@ module Amico
 		Amico.redis.zadd("#{Amico.namespace}:#{Amico.following_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
 		Amico.redis.zadd("#{Amico.namespace}:#{Amico.followers_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id)
+		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", to_id)
 	  end
 
 	  if reciprocated?(from_id, to_id)
