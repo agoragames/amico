@@ -486,20 +486,20 @@ describe Amico::Relationships do
     it 'should return the correct count for the various types of relationships' do
       add_reciprocal_followers(5)
 
-      Amico.count(1, :following).should equal(4)
-      Amico.count(1, :followers).should equal(4)
-      Amico.count(1, :reciprocated).should equal(4)
+      Amico.count(1, :following).should eql(4)
+      Amico.count(1, :followers).should eql(4)
+      Amico.count(1, :reciprocated).should eql(4)
 
       Amico.redis.flushdb
       add_reciprocal_followers(5, true)
 
-      Amico.count(1, :blocked).should equal(4)
+      Amico.count(1, :blocked).should eql(4)
 
       Amico.redis.flushdb
       Amico.pending_follow = true
       add_reciprocal_followers(5)
 
-      Amico.count(1, :pending).should equal(4)
+      Amico.count(1, :pending).should eql(4)
     end
   end
 
@@ -507,20 +507,20 @@ describe Amico::Relationships do
     it 'should return the correct page count for the various types of relationships' do
       add_reciprocal_followers(5)
 
-      Amico.page_count(1, :following).should equal(1)
-      Amico.page_count(1, :followers).should equal(1)
-      Amico.page_count(1, :reciprocated).should equal(1)
+      Amico.page_count(1, :following).should eql(1)
+      Amico.page_count(1, :followers).should eql(1)
+      Amico.page_count(1, :reciprocated).should eql(1)
 
       Amico.redis.flushdb
       add_reciprocal_followers(5, true)
 
-      Amico.page_count(1, :blocked).should equal(1)
+      Amico.page_count(1, :blocked).should eql(1)
 
       Amico.redis.flushdb
       Amico.pending_follow = true
       add_reciprocal_followers(5)
 
-      Amico.page_count(1, :pending).should equal(1)
+      Amico.page_count(1, :pending).should eql(1)
     end
   end
 
