@@ -120,6 +120,13 @@ describe Amico::Relationships do
     end
   end
 
+  describe '#blocked_by?' do
+    it 'should return that someone is blocking you' do
+      Amico.block(1, 11)
+      Amico.blocked_by?(11, 1).should be_true
+    end
+  end
+
   describe '#reciprocated?' do
     it 'should return true if both individuals are following each other' do
       Amico.follow(1, 11)
@@ -184,6 +191,15 @@ describe Amico::Relationships do
     end
   end
 
+  describe '#blocked_by' do
+    it 'should return the correct list' do
+      Amico.block(11, 1)
+      Amico.block(12, 1)
+      Amico.blocked_by(1).should eql(["12", "11"])
+      Amico.blocked_by(1, :page => 5).should eql(["12", "11"])
+    end
+  end
+
   describe '#reciprocated' do
     it 'should return the correct list' do
       Amico.follow(1, 11)
@@ -219,6 +235,13 @@ describe Amico::Relationships do
     it 'should return the correct count' do
       Amico.block(1, 11)
       Amico.blocked_count(1).should be(1)
+    end
+  end
+
+  describe '#blocked_by_count' do
+    it 'should return the correct count' do
+      Amico.block(1, 11)
+      Amico.blocked_by_count(11).should be(1)
     end
   end
 
@@ -260,6 +283,16 @@ describe Amico::Relationships do
       Amico.blocked_page_count(1).should be(1)
       Amico.blocked_page_count(1, 10).should be(3)
       Amico.blocked_page_count(1, 5).should be(5)
+    end
+  end
+
+  describe '#blocked_by_page_count' do
+    it 'should return the correct count' do
+      add_reciprocal_followers(26, true)
+
+      Amico.blocked_by_page_count(1).should be(1)
+      Amico.blocked_by_page_count(1, 10).should be(3)
+      Amico.blocked_by_page_count(1, 5).should be(5)
     end
   end
 
@@ -452,6 +485,9 @@ describe Amico::Relationships do
 
       blocked_list = Amico.all(1, :blocked)
       blocked_list.length.should be(4)
+
+      blocked_by_list = Amico.all(1, :blocked_by)
+      blocked_by_list.length.should be(4)
     end
   end
 
@@ -501,6 +537,7 @@ describe Amico::Relationships do
       add_reciprocal_followers(5, true)
 
       Amico.count(1, :blocked).should eql(4)
+      Amico.count(1, :blocked_by).should eql(4)
 
       Amico.redis.flushdb
       Amico.pending_follow = true
@@ -522,6 +559,7 @@ describe Amico::Relationships do
       add_reciprocal_followers(5, true)
 
       Amico.page_count(1, :blocked).should eql(1)
+      Amico.page_count(1, :blocked_by).should eql(1)
 
       Amico.redis.flushdb
       Amico.pending_follow = true
@@ -564,8 +602,10 @@ describe Amico::Relationships do
     it 'should clear blocked/blocked_by relationships' do
       Amico.block(1, 11)
       Amico.blocked_count(1).should be(1)
+      Amico.blocked_by_count(11).should be(1)
       Amico.clear(11)
       Amico.blocked_count(1).should be(0)
+      Amico.blocked_by_count(11).should be(0)
     end
   end
 

@@ -184,6 +184,21 @@ module Amico
 	  Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}")
 	end
 
+	# Count the number of individuals blocking another.
+	#
+	# @param id [String] ID of the individual to retrieve blocked_by count for.
+	# @param scope [String] Scope for the call.
+	# 
+	# Examples
+	#
+	#   Amico.block(1, 11)
+	#   Amico.blocked_by_count(11)
+	#
+	# @return the count of the number of individuals blocking someone.
+	def blocked_by_count(id, scope = Amico.default_scope_key)
+	  Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{id}")
+	end
+
 	# Count the number of individuals that have reciprocated a following relationship.
 	#
 	# @param id [String] ID of the individual to retrieve reciprocated following count for.
@@ -262,6 +277,22 @@ module Amico
 	# @return true if id has blocked blocked_id, false otherwise
 	def blocked?(id, blocked_id, scope = Amico.default_scope_key)
 	  !Amico.redis.zscore("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}", blocked_id).nil?
+	end
+
+	# Check to see if one individual is blocked by another individual.
+	#
+	# @param id [String] ID of the individual checking the blocked by status.
+	# @param blocked_id [String] ID of the individual to see if they have blocked id.
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	# 
+	#   Amico.block(1, 11)
+	#   Amico.blocked_by?(11, 1)
+	#
+	# @return true if id is blocked by blocked_by_id, false otherwise
+	def blocked_by?(id, blocked_by_id, scope = Amico.default_scope_key)
+	  !Amico.redis.zscore("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{id}", blocked_by_id).nil?
 	end
 
 	# Check to see if one individual has reciprocated in following another individual.
@@ -346,6 +377,23 @@ module Amico
 	# @return a page of blocked individuals for a given ID.
 	def blocked(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 	  members("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}", page_options)
+	end
+
+	# Retrieve a page of individuals who have blocked a given ID.
+	#
+	# @param id [String] ID of the individual.
+	# @param page_options [Hash] Options to be passed for retrieving a page of blocking individuals.
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.block(11, 1)
+	#   Amico.block(12, 1)
+	#   Amico.blocked_by(1, :page => 1)
+	#
+	# @return a page of individuals who have blocked a given ID.
+	def blocked_by(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+	  members("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{id}", page_options)
 	end
 
 	# Retrieve a page of individuals that have reciprocated a follow for a given ID.
@@ -433,6 +481,23 @@ module Amico
 	# @return the number of pages of blocked relationships for an individual.
 	def blocked_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 	  total_pages("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}", page_size)
+	end
+
+	# Count the number of pages of blocked_by relationships for an individual.
+	#
+	# @param id [String] ID of the individual.
+	# @param page_size [int] Page size (default: Amico.page_size).
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.block(11, 1)
+	#   Amico.block(12, 1)
+	#   Amico.blocked_by_page_count(1)
+	#    
+	# @return the number of pages of blocked_by relationships for an individual.
+	def blocked_by_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
+	  total_pages("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{id}", page_size)
 	end
 
 	# Count the number of pages of reciprocated relationships for an individual.
