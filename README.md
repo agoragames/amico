@@ -438,10 +438,14 @@ following(id, page_options = default_paging_options, scope = Amico.default_scope
 followers(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 # Retrieve a page of blocked individuals for a given ID.
 blocked(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+# Retrieve a page of individuals who have blocked a given ID.
+blocked_by(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 # Retrieve a page of individuals that have reciprocated a follow for a given ID.
 reciprocated(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 # Retrieve a page of pending relationships for a given ID.
 pending(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+# Retrieve a page of individuals that are waiting to approve the given ID.
+pending_with(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 
 # Retrieve all of the individuals for a given id, type (e.g. following) and scope.
 all(id, type, scope = Amico.default_scope_key)
@@ -454,10 +458,14 @@ following_count(id, scope = Amico.default_scope_key)
 followers_count(id, scope = Amico.default_scope_key)
 # Count the number of individuals that someone has blocked.
 blocked_count(id, scope = Amico.default_scope_key)
+# Count the number of individuals blocking another.
+blocked_by_count(id, scope = Amico.default_scope_key)
 # Count the number of individuals that have reciprocated a following relationship.
 reciprocated_count(id, scope = Amico.default_scope_key)
 # Count the number of relationships pending for an individual.
 pending_count(id, scope = Amico.default_scope_key)
+# Count the number of relationships an individual has pending with another.
+pending_with_count(id, scope = Amico.default_scope_key)
 
 # Count the number of pages of following relationships for an individual.
 following_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
@@ -465,10 +473,14 @@ following_page_count(id, page_size = Amico.page_size, scope = Amico.default_scop
 followers_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 # Count the number of pages of blocked relationships for an individual.
 blocked_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
+# Count the number of pages of blocked_by relationships for an individual.
+blocked_by_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 # Count the number of pages of reciprocated relationships for an individual.
 reciprocated_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 # Count the number of pages of pending relationships for an individual.
 pending_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
+# Count the number of pages of individuals waiting to approve another individual.
+pending_with_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 
 # Checks
 
@@ -478,10 +490,14 @@ following?(id, following_id, scope = Amico.default_scope_key)
 follower?(id, follower_id, scope = Amico.default_scope_key)
 # Check to see if one individual has blocked another individual.
 blocked?(id, blocked_id, scope = Amico.default_scope_key)
+# Check to see if one individual is blocked by another individual.
+blocked_by?(id, blocked_id, scope = Amico.default_scope_key)
 # Check to see if one individual has reciprocated in following another individual.
 reciprocated?(from_id, to_id, scope = Amico.default_scope_key)
 # Check to see if one individual has a pending relationship in following another individual.
 pending?(from_id, to_id, scope = Amico.default_scope_key)
+# Check to see if one individual has a pending relationship with another.
+pending_with?(from_id, to_id, scope = Amico.default_scope_key)
 ```
 
 ## Documentation
