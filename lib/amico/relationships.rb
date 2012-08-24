@@ -474,11 +474,10 @@ module Amico
 	# Retrieve all of the individuals for a given id, type (e.g. following) and scope
 	#
 	# @param id [String] ID of the individual.
-	# @param type [Symbol] One of :following, :followers, :blocked, :reciprocated, :pending.
+	# @param type [Symbol] One of :following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with.
 	# @param scope [String] Scope for the call.
 	def all(id, type, scope = Amico.default_scope_key)
-	  valid_types = [:following, :followers, :blocked, :reciprocated, :pending]
-	  raise "Must be one of #{valid_types.to_s}" if !valid_types.include?(type)
+    validate_relationship_type(type)
 	  count = self.send("#{type.to_s}_count".to_sym, id, scope)
 	  count > 0 ? self.send("#{type}", id, {:page_size => count}, scope) : []
 	end
@@ -486,27 +485,40 @@ module Amico
   # Retrieve a count of all of a given type of relationship for the specified id.
   #
   # @param id [String] ID of the individual.
-  # @param type [Symbol] One of :following, :followers, :blocked, :reciprocated, :pending.
+	# @param type [Symbol] One of :following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with.
   # @param scope [String] Scope for the call.
   #
   # @return Count of all of a given type of relationship for the specified id.
 	def count(id, type, scope = Amico.default_scope_key)
+    validate_relationship_type(type)
     self.send("#{type.to_s}_count".to_sym, id, scope)
 	end
 
   # Retrieve a page count of a given type of relationship for the specified id.
   #
   # @param id [String] ID of the individual.
-  # @param type [Symbol] One of :following, :followers, :blocked, :reciprocated, :pending.
+	# @param type [Symbol] One of :following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with.
   # @param page_size [int] Page size (default: Amico.page_size).
   # @param scope [String] Scope for the call.
   #
   # @return Page count of a given type of relationship for the specified id.
   def page_count(id, type, page_size = Amico.page_size, scope = Amico.default_scope_key)
+    validate_relationship_type(type)
     self.send("#{type.to_s}_page_count".to_sym, id, page_size, scope)
   end
 
 	private
+
+  # Valid relationtionships that can be used in #all, #count, #page_count, etc...
+  VALID_RELATIONSHIPS = [:following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with]
+
+  # Ensure that a relationship type is valid.
+  # 
+  # @param type [Symbol] One of :following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with.
+  # @raise [StandardError] if the type is not included in VALID_RELATIONSHIPS
+  def validate_relationship_type(type)
+    raise "Must be one of #{VALID_RELATIONSHIPS.to_s}" if !VALID_RELATIONSHIPS.include?(type)
+  end
 
 	# Default paging options.
 	#
