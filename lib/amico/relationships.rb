@@ -231,6 +231,22 @@ module Amico
 	  Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}")
 	end
 
+	# Count the number of relationships an individual has pending with another.
+	#
+	# @param id [String] ID of the individual to retrieve pending count for.
+	# @param scope [String] Scope for the call.
+	# 
+	# Examples
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.follow(1, 12)
+	#   Amico.pending_count(1) # 2
+	#
+	# @return the count of the number of relationships an individual has pending with another.
+	def pending_with_count(id, scope = Amico.default_scope_key)
+	  Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{id}")
+	end
+
 	# Check to see if one individual is following another individual.
 	#
 	# @param id [String] ID of the individual checking the following status.
@@ -328,6 +344,22 @@ module Amico
 	  !Amico.redis.zscore("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id).nil?
 	end
 
+	# Check to see if one individual has a pending relationship with another.
+	#
+	# @param from_id [String] ID of the individual checking the pending relationships.
+	# @param to_id [String] ID of the individual to see if they are pending an approval from from_id.
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.pending_with?(11, 1) # true
+	#
+	# @return true if the relationship is pending, false otherwise
+	def pending_with?(from_id, to_id, scope = Amico.default_scope_key)
+	  !Amico.redis.zscore("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{to_id}", from_id).nil?
+	end
+
 	# Retrieve a page of followed individuals for a given ID.
 	#
 	# @param id [String] ID of the individual.
@@ -423,13 +455,30 @@ module Amico
 	#
 	# Examples
 	#
-	#   Amico.follow(1, 11)
-	#   Amico.follow(2, 11)
+	#   Amico.follow(11, 1)
+	#   Amico.follow(12, 1)
 	#   Amico.pending(1, :page => 1)
 	#
 	# @return a page of pending relationships for a given ID.
 	def pending(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 	  members("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}", page_options)
+	end
+
+	# Retrieve a page of individuals that are waiting to approve the given ID.
+	#
+	# @param id [String] ID of the individual.
+	# @param page_options [Hash] Options to be passed for retrieving a page of pending relationships.
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.follow(1, 12)
+	#   Amico.pending_with(1, :page => 1)
+	#
+	# @return a page of individuals that are waiting to approve the given ID.
+	def pending_with(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+	  members("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{id}", page_options)
 	end
 
 	# Count the number of pages of following relationships for an individual.
@@ -534,6 +583,23 @@ module Amico
 	# @return the number of pages of pending relationships for an individual.
 	def pending_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 	  total_pages("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}", page_size)
+	end
+
+	# Count the number of pages of individuals waiting to approve another individual.
+	#
+	# @param id [String] ID of the individual.
+	# @param page_size [int] Page size (default: Amico.page_size).
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.follow(1, 12)
+	#   Amico.pending_with_page_count(1) # 1
+	#    
+	# @return the number of pages of individuals waiting to approve another individual.
+	def pending_with_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
+	  total_pages("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{id}", page_size)
 	end
 
 	# Retrieve all of the individuals for a given id, type (e.g. following) and scope

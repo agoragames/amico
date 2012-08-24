@@ -344,10 +344,12 @@ describe Amico::Relationships do
       it 'should remove the pending relationship and add to following and followers if #accept is called' do
         Amico.follow(1, 11)
         Amico.pending?(1, 11).should be_true
+        Amico.pending_with?(11, 1).should be_true
 
         Amico.accept(1, 11)
 
         Amico.pending?(1, 11).should be_false
+        Amico.pending_with?(11, 1).should be_false
         Amico.following?(1, 11).should be_true
         Amico.following?(11, 1).should be_false
         Amico.follower?(11, 1).should be_true
@@ -385,8 +387,10 @@ describe Amico::Relationships do
       it 'should remove the pending relationship if you block someone' do
         Amico.follow(11, 1)
         Amico.pending?(11, 1).should be_true
+        Amico.pending_with?(1, 11).should be_true
         Amico.block(1, 11)
         Amico.pending?(11, 1).should be_false
+        Amico.pending_with?(1, 11).should be_false
         Amico.blocked?(1, 11).should be_true
       end
     end
@@ -408,6 +412,23 @@ describe Amico::Relationships do
       end
     end
 
+    describe '#pending_with' do
+      it 'should return the correct list' do
+        Amico.follow(1, 11)
+        Amico.follow(11, 1)
+        Amico.pending_with(1).should eql(["11"])
+        Amico.pending_with(11).should eql(["1"])
+      end
+
+      it 'should page correctly' do
+        add_reciprocal_followers
+
+        Amico.pending_with(1, :page => 1, :page_size => 5).size.should be(5)
+        Amico.pending_with(1, :page => 1, :page_size => 10).size.should be(10)
+        Amico.pending_with(1, :page => 1, :page_size => 26).size.should be(25)
+      end
+    end
+
     describe '#pending_count' do
       it 'should return the correct count' do
         Amico.follow(1, 11)
@@ -419,6 +440,17 @@ describe Amico::Relationships do
       end
     end
 
+    describe '#pending_with_count' do
+      it 'should return the correct count' do
+        Amico.follow(1, 11)
+        Amico.follow(11, 1)
+        Amico.follow(1, 12)
+        Amico.follow(12, 1)
+        Amico.follow(1, 13)
+        Amico.pending_with_count(1).should be(3)
+      end
+    end
+
     describe '#pending_page_count' do
       it 'should return the correct count' do
         add_reciprocal_followers
@@ -426,6 +458,16 @@ describe Amico::Relationships do
         Amico.pending_page_count(1).should be(1)
         Amico.pending_page_count(1, 10).should be(3)
         Amico.pending_page_count(1, 5).should be(5)
+      end
+    end
+
+    describe '#pending_with_page_count' do
+      it 'should return the correct count' do
+        add_reciprocal_followers
+
+        Amico.pending_with_page_count(1).should be(1)
+        Amico.pending_with_page_count(1, 10).should be(3)
+        Amico.pending_with_page_count(1, 5).should be(5)
       end
     end
   end
