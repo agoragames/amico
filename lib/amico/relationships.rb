@@ -20,6 +20,7 @@ module Amico
 		  add_following_followers_reciprocated(from_id, to_id, scope)
 	  else
 		  Amico.redis.zadd("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)
+		  Amico.redis.zadd("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
 	  end
 	end
 
@@ -44,6 +45,7 @@ module Amico
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{from_id}", to_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{to_id}", from_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id)
+		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", to_id)
 	  end
 	end  
 
@@ -68,7 +70,9 @@ module Amico
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{from_id}", to_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{to_id}", from_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{from_id}", to_id)
+		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{to_id}", from_id)
 		Amico.redis.zadd("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
+		Amico.redis.zadd("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)
 	  end
 	end
 
@@ -85,7 +89,10 @@ module Amico
 	def unblock(from_id, to_id, scope = Amico.default_scope_key)
 	  return if from_id == to_id
 
-	  Amico.redis.zrem("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{from_id}", to_id)
+		Amico.redis.multi do
+			Amico.redis.zrem("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{from_id}", to_id)
+			Amico.redis.zrem("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{to_id}", from_id)
+		end
 	end
 
 	# Accept a relationship that is pending between two IDs.
@@ -106,6 +113,31 @@ module Amico
 
 	  add_following_followers_reciprocated(from_id, to_id, scope)
 	end
+
+  # Clears all relationships (in either direction) stored for an individual.
+  # Helpful to prevent orphaned associations when deleting users.
+  # 
+  # @param id [String] ID of the individual to clear info for.
+  # @param scope [String] Scope for the call.
+  # 
+  # Examples
+  # 
+  #   Amico.follow(1, 11)
+  #   Amico.followers_count(11)  => 1
+  #   Amico.clear(1)
+  #   Amico.followers_count(11)  => 0
+  def clear(id, scope = Amico.default_scope_key)
+    # no longer following (or followed by) anyone
+    clear_bidirectional_sets_for_id(id, Amico.following_key, Amico.followers_key, scope)
+    clear_bidirectional_sets_for_id(id, Amico.followers_key, Amico.following_key, scope)
+    clear_bidirectional_sets_for_id(id, Amico.reciprocated_key, Amico.reciprocated_key, scope)
+    # no longer blocked by (or blocking) anyone
+    clear_bidirectional_sets_for_id(id, Amico.blocked_by_key, Amico.blocked_key, scope)
+    clear_bidirectional_sets_for_id(id, Amico.blocked_key, Amico.blocked_by_key, scope)
+    # no longer pending with anyone (or have any pending followers)
+    clear_bidirectional_sets_for_id(id, Amico.pending_with_key, Amico.pending_key, scope)
+    clear_bidirectional_sets_for_id(id, Amico.pending_key, Amico.pending_with_key, scope)
+  end
 
 	# Count the number of individuals that someone is following.
 	#
@@ -152,6 +184,21 @@ module Amico
 	  Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}")
 	end
 
+	# Count the number of individuals blocking another.
+	#
+	# @param id [String] ID of the individual to retrieve blocked_by count for.
+	# @param scope [String] Scope for the call.
+	# 
+	# Examples
+	#
+	#   Amico.block(1, 11)
+	#   Amico.blocked_by_count(11)
+	#
+	# @return the count of the number of individuals blocking someone.
+	def blocked_by_count(id, scope = Amico.default_scope_key)
+	  Amico.redis.zcard("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{id}")
+	end
+
 	# Count the number of individuals that have reciprocated a following relationship.
 	#
 	# @param id [String] ID of the individual to retrieve reciprocated following count for.
@@ -182,6 +229,22 @@ module Amico
 	# @return the count of the number of relationships pending for an individual.
 	def pending_count(id, scope = Amico.default_scope_key)
 	  Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}")
+	end
+
+	# Count the number of relationships an individual has pending with another.
+	#
+	# @param id [String] ID of the individual to retrieve pending count for.
+	# @param scope [String] Scope for the call.
+	# 
+	# Examples
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.follow(1, 12)
+	#   Amico.pending_count(1) # 2
+	#
+	# @return the count of the number of relationships an individual has pending with another.
+	def pending_with_count(id, scope = Amico.default_scope_key)
+	  Amico.redis.zcard("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{id}")
 	end
 
 	# Check to see if one individual is following another individual.
@@ -232,6 +295,22 @@ module Amico
 	  !Amico.redis.zscore("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}", blocked_id).nil?
 	end
 
+	# Check to see if one individual is blocked by another individual.
+	#
+	# @param id [String] ID of the individual checking the blocked by status.
+	# @param blocked_id [String] ID of the individual to see if they have blocked id.
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	# 
+	#   Amico.block(1, 11)
+	#   Amico.blocked_by?(11, 1)
+	#
+	# @return true if id is blocked by blocked_by_id, false otherwise
+	def blocked_by?(id, blocked_by_id, scope = Amico.default_scope_key)
+	  !Amico.redis.zscore("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{id}", blocked_by_id).nil?
+	end
+
 	# Check to see if one individual has reciprocated in following another individual.
 	#
 	# @param from_id [String] ID of the individual checking the reciprocated relationship.
@@ -263,6 +342,22 @@ module Amico
 	# @return true if the relationship is pending, false otherwise
 	def pending?(from_id, to_id, scope = Amico.default_scope_key)
 	  !Amico.redis.zscore("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id).nil?
+	end
+
+	# Check to see if one individual has a pending relationship with another.
+	#
+	# @param from_id [String] ID of the individual checking the pending relationships.
+	# @param to_id [String] ID of the individual to see if they are pending an approval from from_id.
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.pending_with?(11, 1) # true
+	#
+	# @return true if the relationship is pending, false otherwise
+	def pending_with?(from_id, to_id, scope = Amico.default_scope_key)
+	  !Amico.redis.zscore("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{to_id}", from_id).nil?
 	end
 
 	# Retrieve a page of followed individuals for a given ID.
@@ -316,6 +411,23 @@ module Amico
 	  members("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}", page_options)
 	end
 
+	# Retrieve a page of individuals who have blocked a given ID.
+	#
+	# @param id [String] ID of the individual.
+	# @param page_options [Hash] Options to be passed for retrieving a page of blocking individuals.
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.block(11, 1)
+	#   Amico.block(12, 1)
+	#   Amico.blocked_by(1, :page => 1)
+	#
+	# @return a page of individuals who have blocked a given ID.
+	def blocked_by(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+	  members("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{id}", page_options)
+	end
+
 	# Retrieve a page of individuals that have reciprocated a follow for a given ID.
 	#
 	# @param id [String] ID of the individual.
@@ -343,13 +455,30 @@ module Amico
 	#
 	# Examples
 	#
-	#   Amico.follow(1, 11)
-	#   Amico.follow(2, 11)
+	#   Amico.follow(11, 1)
+	#   Amico.follow(12, 1)
 	#   Amico.pending(1, :page => 1)
 	#
 	# @return a page of pending relationships for a given ID.
 	def pending(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 	  members("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}", page_options)
+	end
+
+	# Retrieve a page of individuals that are waiting to approve the given ID.
+	#
+	# @param id [String] ID of the individual.
+	# @param page_options [Hash] Options to be passed for retrieving a page of pending relationships.
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.follow(1, 12)
+	#   Amico.pending_with(1, :page => 1)
+	#
+	# @return a page of individuals that are waiting to approve the given ID.
+	def pending_with(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+	  members("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{id}", page_options)
 	end
 
 	# Count the number of pages of following relationships for an individual.
@@ -403,6 +532,23 @@ module Amico
 	  total_pages("#{Amico.namespace}:#{Amico.blocked_key}:#{scope}:#{id}", page_size)
 	end
 
+	# Count the number of pages of blocked_by relationships for an individual.
+	#
+	# @param id [String] ID of the individual.
+	# @param page_size [int] Page size (default: Amico.page_size).
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.block(11, 1)
+	#   Amico.block(12, 1)
+	#   Amico.blocked_by_page_count(1)
+	#    
+	# @return the number of pages of blocked_by relationships for an individual.
+	def blocked_by_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
+	  total_pages("#{Amico.namespace}:#{Amico.blocked_by_key}:#{scope}:#{id}", page_size)
+	end
+
 	# Count the number of pages of reciprocated relationships for an individual.
 	#
 	# @param id [String] ID of the individual.
@@ -439,14 +585,30 @@ module Amico
 	  total_pages("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{id}", page_size)
 	end
 
+	# Count the number of pages of individuals waiting to approve another individual.
+	#
+	# @param id [String] ID of the individual.
+	# @param page_size [int] Page size (default: Amico.page_size).
+	# @param scope [String] Scope for the call.
+	#
+	# Examples
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.follow(1, 12)
+	#   Amico.pending_with_page_count(1) # 1
+	#    
+	# @return the number of pages of individuals waiting to approve another individual.
+	def pending_with_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
+	  total_pages("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{id}", page_size)
+	end
+
 	# Retrieve all of the individuals for a given id, type (e.g. following) and scope
 	#
 	# @param id [String] ID of the individual.
-	# @param type [Symbol] One of :following, :followers, :blocked, :reciprocated, :pending.
+	# @param type [Symbol] One of :following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with.
 	# @param scope [String] Scope for the call.
 	def all(id, type, scope = Amico.default_scope_key)
-	  valid_types = [:following, :followers, :blocked, :reciprocated, :pending]
-	  raise "Must be one of #{valid_types.to_s}" if !valid_types.include?(type)
+    validate_relationship_type(type)
 	  count = self.send("#{type.to_s}_count".to_sym, id, scope)
 	  count > 0 ? self.send("#{type}", id, {:page_size => count}, scope) : []
 	end
@@ -454,27 +616,40 @@ module Amico
   # Retrieve a count of all of a given type of relationship for the specified id.
   #
   # @param id [String] ID of the individual.
-  # @param type [Symbol] One of :following, :followers, :blocked, :reciprocated, :pending.
+	# @param type [Symbol] One of :following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with.
   # @param scope [String] Scope for the call.
   #
   # @return Count of all of a given type of relationship for the specified id.
 	def count(id, type, scope = Amico.default_scope_key)
+    validate_relationship_type(type)
     self.send("#{type.to_s}_count".to_sym, id, scope)
 	end
 
   # Retrieve a page count of a given type of relationship for the specified id.
   #
   # @param id [String] ID of the individual.
-  # @param type [Symbol] One of :following, :followers, :blocked, :reciprocated, :pending.
+	# @param type [Symbol] One of :following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with.
   # @param page_size [int] Page size (default: Amico.page_size).
   # @param scope [String] Scope for the call.
   #
   # @return Page count of a given type of relationship for the specified id.
   def page_count(id, type, page_size = Amico.page_size, scope = Amico.default_scope_key)
+    validate_relationship_type(type)
     self.send("#{type.to_s}_page_count".to_sym, id, page_size, scope)
   end
 
 	private
+
+  # Valid relationtionships that can be used in #all, #count, #page_count, etc...
+  VALID_RELATIONSHIPS = [:following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with]
+
+  # Ensure that a relationship type is valid.
+  # 
+  # @param type [Symbol] One of :following, :followers, :reciprocated, :blocked, :blocked_by, :pending, :pending_with.
+  # @raise [StandardError] if the type is not included in VALID_RELATIONSHIPS
+  def validate_relationship_type(type)
+    raise "Must be one of #{VALID_RELATIONSHIPS.to_s}" if !VALID_RELATIONSHIPS.include?(type)
+  end
 
 	# Default paging options.
 	#
@@ -493,6 +668,7 @@ module Amico
 		Amico.redis.zadd("#{Amico.namespace}:#{Amico.following_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
 		Amico.redis.zadd("#{Amico.namespace}:#{Amico.followers_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)
 		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id)
+		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", to_id)
 	  end
 
 	  if reciprocated?(from_id, to_id)
@@ -502,6 +678,20 @@ module Amico
 		end
 	  end      
 	end
+
+	# Removes references to an individual in sets that are named with other individual's keys.
+	# Assumes two set keys that are used together such as followers/following, blocked/blocked_by, etc...
+	#
+	# @param id [String] The ID of the individual to clear info for.
+	# @param source_set_key [String] The key identifying the souce set to iterate over.
+	# @param related_set_key [String] The key identifying the sets that the idividual needs to be removed from.
+  # @param scope [String] Scope for the call.
+  def clear_bidirectional_sets_for_id(id, source_set_key, related_set_key, scope = Amico.default_scope_key)
+    Amico.redis.zrange("#{Amico.namespace}:#{source_set_key}:#{scope}:#{id}", 0, -1).each do |related_id|
+      Amico.redis.zrem("#{Amico.namespace}:#{related_set_key}:#{scope}:#{related_id}", id)
+    end
+    Amico.redis.del("#{Amico.namespace}:#{source_set_key}:#{scope}:#{id}")
+  end
 
 	# Count the total number of pages for a given key in a Redis sorted set.
 	#

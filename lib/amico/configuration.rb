@@ -16,11 +16,17 @@ module Amico
     # Key used in Redis for tracking who an individual blocks.
     attr_writer :blocked_key
 
+    # Key used in Redis for tracking who has blocked an individual.
+    attr_writer :blocked_by_key
+
     # Key used in Redis for tracking who has reciprocated a follow for an individual.
     attr_writer :reciprocated_key
 
     # Key used in Redis for tracking pending follow relationships for an individual.
     attr_writer :pending_key
+
+    # Key used in Redis for tracking who an individual is awaiting approval from.
+    attr_writer :pending_with_key
 
     # Key used to indicate whether or not a follow should be pending or not.
     attr_writer :pending_follow
@@ -41,8 +47,10 @@ module Amico
     #     configuration.following_key = 'following'
     #     configuration.followers_key = 'followers'
     #     configuration.blocked_key = 'blocked'
+    #     configuration.blocked_by_key = 'blocked_by'
     #     configuration.reciprocated_key = 'reciprocated'
     #     configuration.pending_key = 'pending'
+    #     configuration.pending_with_key = 'pending_with'
     #     configuration.default_scope_key = 'default'
     #     configuration.pending_follow = false
     #     configuration.page_size = 25
@@ -79,6 +87,13 @@ module Amico
       @blocked_key ||= 'blocked'
     end
 
+    # Key used in Redis for tracking who has blocked an individual.
+    # 
+    # @return the key used in Redis for tracking who has blocked an individual or the default of 'blocked_by' if not set.
+    def blocked_by_key
+      @blocked_by_key ||= 'blocked_by'
+    end
+
     # Key used in Redis for tracking who has reciprocated a follow for an individual.
     #
     # @return the key used in Redis for tracking who has reciprocated a follow for an individual or the default of 'reciprocated' if not set.
@@ -91,6 +106,13 @@ module Amico
     # @return the key used in Redis for tracking pending follow relationships for an individual.
     def pending_key
       @pending_key ||= 'pending'
+    end
+
+    # Key used in Redis for tracking who an individual is awaiting approval from.
+    #
+    # @return the key used in Redis for tracking who an individual is awaiting approval from or the default of 'pending_with' if not set.
+    def pending_with_key
+      @pending_with_key ||= 'pending_with'
     end
 
     # Default key used in Redis for tracking scope for the given relationship calls.

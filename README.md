@@ -26,8 +26,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
@@ -46,8 +48,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
@@ -98,10 +102,16 @@ Amico.following?(11, 1)
 Amico.blocked?(1, 11)
  => true
 
+Amico.blocked_by?(11, 1)
+ => true
+
 Amico.unblock(1, 11)
  => true
 
 Amico.blocked?(1, 11)
+ => false
+
+Amico.blocked_by?(11, 1)
  => false
 
 Amico.follow(11, 1)
@@ -129,8 +139,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = true
   configuration.page_size = 25
@@ -145,7 +157,13 @@ Amico.follow(11, 1)
 Amico.pending?(1, 11)
  => true
 
+Amico.pending_with?(11, 1)
+ => true
+
 Amico.pending?(11, 1)
+ => true
+
+Amico.pending_with?(1, 11)
  => true
 
 Amico.accept(1, 11)
@@ -154,7 +172,13 @@ Amico.accept(1, 11)
 Amico.pending?(1, 11)
  => false
 
+Amico.pending_with?(11, 1)
+ => false
+
 Amico.pending?(11, 1)
+ => true
+
+Amico.pending_with?(1, 11)
  => true
 
 Amico.following?(1, 11)
@@ -175,7 +199,13 @@ Amico.accept(11, 1)
 Amico.pending?(1, 11)
  => false
 
+Amico.pending_with?(11, 1)
+ => false
+
 Amico.pending?(11, 1)
+ => false
+
+Amico.pending_with?(1, 11)
  => false
 
 Amico.following?(1, 11)
@@ -205,8 +235,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
@@ -293,8 +325,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = true
   configuration.page_size = 25
@@ -365,8 +399,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'user'
   configuration.pending_follow = false
   configuration.page_size = 25
@@ -412,6 +448,25 @@ Amico.all(1, :following)
 `type` can be one of :following, :followers, :blocked, :reciprocated, :pending. Use this with caution
 as there may potentially be a large number of items that could be returned from this call.
 
+You can clear all relationships that have been set for an ID by calling `clear(id, scope)`. You may wish to do this if you allow records to be deleted and you wish to prevent orphaned IDs and inaccurate follower/following counts. Note that this clears *all* relationships in either direction - including blocked and pending. An example:
+
+```ruby
+Amico.follow(11, 1)
+ => nil
+Amico.block(12, 1)
+ => nil
+Amico.following(11)
+ => ["1"]
+Amico.blocked(12)
+ => ["1"]
+Amico.clear(1)
+ => nil
+Amico.following(11)
+ => []
+Amico.blocked(12)
+ => []
+```
+
 ## Method Summary
 
 ```ruby
@@ -427,6 +482,8 @@ block(from_id, to_id, scope = Amico.default_scope_key)
 unblock(from_id, to_id, scope = Amico.default_scope_key)
 # Accept a relationship that is pending between two IDs.
 accept(from_id, to_id, scope = Amico.default_scope_key)
+# Clear all relationships (in either direction) for a given ID.
+clear(id, scope = Amico.default_scope_key)
 
 # Retrieval
 
@@ -436,10 +493,14 @@ following(id, page_options = default_paging_options, scope = Amico.default_scope
 followers(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 # Retrieve a page of blocked individuals for a given ID.
 blocked(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+# Retrieve a page of individuals who have blocked a given ID.
+blocked_by(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 # Retrieve a page of individuals that have reciprocated a follow for a given ID.
 reciprocated(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 # Retrieve a page of pending relationships for a given ID.
 pending(id, page_options = default_paging_options, scope = Amico.default_scope_key)
+# Retrieve a page of individuals that are waiting to approve the given ID.
+pending_with(id, page_options = default_paging_options, scope = Amico.default_scope_key)
 
 # Retrieve all of the individuals for a given id, type (e.g. following) and scope.
 all(id, type, scope = Amico.default_scope_key)
@@ -452,10 +513,14 @@ following_count(id, scope = Amico.default_scope_key)
 followers_count(id, scope = Amico.default_scope_key)
 # Count the number of individuals that someone has blocked.
 blocked_count(id, scope = Amico.default_scope_key)
+# Count the number of individuals blocking another.
+blocked_by_count(id, scope = Amico.default_scope_key)
 # Count the number of individuals that have reciprocated a following relationship.
 reciprocated_count(id, scope = Amico.default_scope_key)
 # Count the number of relationships pending for an individual.
 pending_count(id, scope = Amico.default_scope_key)
+# Count the number of relationships an individual has pending with another.
+pending_with_count(id, scope = Amico.default_scope_key)
 
 # Count the number of pages of following relationships for an individual.
 following_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
@@ -463,10 +528,14 @@ following_page_count(id, page_size = Amico.page_size, scope = Amico.default_scop
 followers_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 # Count the number of pages of blocked relationships for an individual.
 blocked_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
+# Count the number of pages of blocked_by relationships for an individual.
+blocked_by_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 # Count the number of pages of reciprocated relationships for an individual.
 reciprocated_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 # Count the number of pages of pending relationships for an individual.
 pending_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
+# Count the number of pages of individuals waiting to approve another individual.
+pending_with_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)
 
 # Checks
 
@@ -476,10 +545,14 @@ following?(id, following_id, scope = Amico.default_scope_key)
 follower?(id, follower_id, scope = Amico.default_scope_key)
 # Check to see if one individual has blocked another individual.
 blocked?(id, blocked_id, scope = Amico.default_scope_key)
+# Check to see if one individual is blocked by another individual.
+blocked_by?(id, blocked_id, scope = Amico.default_scope_key)
 # Check to see if one individual has reciprocated in following another individual.
 reciprocated?(from_id, to_id, scope = Amico.default_scope_key)
 # Check to see if one individual has a pending relationship in following another individual.
 pending?(from_id, to_id, scope = Amico.default_scope_key)
+# Check to see if one individual has a pending relationship with another.
+pending_with?(from_id, to_id, scope = Amico.default_scope_key)
 ```
 
 ## Documentation
