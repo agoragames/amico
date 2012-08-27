@@ -114,6 +114,25 @@ module Amico
 	  add_following_followers_reciprocated(from_id, to_id, scope)
 	end
 
+	# Deny a relationship that is pending between two IDs.
+	# 
+	# @param from_id [String] The ID of the individual denying the relationship.
+	# @param to_id [String] The ID of the individual to be denied.
+	# @param scope [String] Scope for the call.
+	# 
+	# Example
+	#
+	#   Amico.follow(1, 11)
+	#   Amico.pending?(1, 11) # true
+	#   Amico.deny(1, 11)
+	#   Amico.pending?(1, 11) # false
+	#   Amico.following?(1, 11) #false
+	def deny(from_id, to_id, scope = Amico.default_scope_key)
+		return if from_id == to_id
+		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id)
+		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", to_id)
+	end
+
   # Clears all relationships (in either direction) stored for an individual.
   # Helpful to prevent orphaned associations when deleting users.
   # 
