@@ -635,11 +635,13 @@ describe Amico::Relationships do
       Amico.reciprocated_count(11).should be(0)
     end
     it 'should clear pending/pending_with relationships' do
+      previous_pending_value = Amico.pending_follow
       Amico.pending_follow = true
       Amico.follow(1, 11)
       Amico.pending_count(11).should be(1)
       Amico.clear(1)
       Amico.pending_count(11).should be(0)
+      Amico.pending_follow = previous_pending_value
     end
     it 'should clear blocked/blocked_by relationships' do
       Amico.block(1, 11)
