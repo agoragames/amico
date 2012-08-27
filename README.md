@@ -26,8 +26,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
@@ -46,8 +48,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
@@ -98,10 +102,16 @@ Amico.following?(11, 1)
 Amico.blocked?(1, 11)
  => true
 
+Amico.blocked_by?(11, 1)
+ => true
+
 Amico.unblock(1, 11)
  => true
 
 Amico.blocked?(1, 11)
+ => false
+
+Amico.blocked_by?(11, 1)
  => false
 
 Amico.follow(11, 1)
@@ -129,8 +139,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = true
   configuration.page_size = 25
@@ -145,7 +157,13 @@ Amico.follow(11, 1)
 Amico.pending?(1, 11)
  => true
 
+Amico.pending_with?(11, 1)
+ => true
+
 Amico.pending?(11, 1)
+ => true
+
+Amico.pending_with?(1, 11)
  => true
 
 Amico.accept(1, 11)
@@ -154,7 +172,13 @@ Amico.accept(1, 11)
 Amico.pending?(1, 11)
  => false
 
+Amico.pending_with?(11, 1)
+ => false
+
 Amico.pending?(11, 1)
+ => true
+
+Amico.pending_with?(1, 11)
  => true
 
 Amico.following?(1, 11)
@@ -175,7 +199,13 @@ Amico.accept(11, 1)
 Amico.pending?(1, 11)
  => false
 
+Amico.pending_with?(11, 1)
+ => false
+
 Amico.pending?(11, 1)
+ => false
+
+Amico.pending_with?(1, 11)
  => false
 
 Amico.following?(1, 11)
@@ -205,8 +235,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = false
   configuration.page_size = 25
@@ -293,8 +325,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'default'
   configuration.pending_follow = true
   configuration.page_size = 25
@@ -365,8 +399,10 @@ Amico.configure do |configuration|
   configuration.following_key = 'following'
   configuration.followers_key = 'followers'
   configuration.blocked_key = 'blocked'
+  configuration.blocked_by_key = 'blocked_by'
   configuration.reciprocated_key = 'reciprocated'
   configuration.pending_key = 'pending'
+  configuration.pending_with_key = 'pending_with'
   configuration.default_scope_key = 'user'
   configuration.pending_follow = false
   configuration.page_size = 25
@@ -411,6 +447,25 @@ Amico.all(1, :following)
 
 `type` can be one of :following, :followers, :blocked, :reciprocated, :pending. Use this with caution
 as there may potentially be a large number of items that could be returned from this call.
+
+You can clear all relationships that have been set for an ID by calling `clear(id, scope)`. You may wish to do this if you allow records to be deleted and you wish to prevent orphaned IDs and inaccurate follower/following counts. Note that this clears *all* relationships in either direction - including blocked and pending. An example:
+
+```ruby
+Amico.follow(11, 1)
+ => nil
+Amico.block(12, 1)
+ => nil
+Amico.following(11)
+ => ["1"]
+Amico.blocked(12)
+ => ["1"]
+Amico.clear(1)
+ => nil
+Amico.following(11)
+ => []
+Amico.blocked(12)
+ => []
+```
 
 ## Method Summary
 
