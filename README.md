@@ -222,6 +222,25 @@ Amico.follower?(1, 11)
 
 Amico.reciprocated?(1, 11)
  => true
+
+Amico.follow(1, 12)
+ => true
+
+Amico.following?(1, 12)
+ => false
+
+Amico.pending?(1, 12)
+ => true
+
+Amico.deny(1, 12)
+ => true
+
+Amico.following?(1, 12)
+ => false
+
+Amico.pending?(1, 12)
+ => false
+
 ```
 
 Use amico with nicknames instead of IDs. NOTE: This could cause you much hardship later on if you allow nicknames to change.
@@ -482,6 +501,8 @@ block(from_id, to_id, scope = Amico.default_scope_key)
 unblock(from_id, to_id, scope = Amico.default_scope_key)
 # Accept a relationship that is pending between two IDs.
 accept(from_id, to_id, scope = Amico.default_scope_key)
+# Deny a relationship that is pending between two IDs.
+deny(from_id, to_id, scope = Amico.default_scope_key)
 # Clear all relationships (in either direction) for a given ID.
 clear(id, scope = Amico.default_scope_key)
 
