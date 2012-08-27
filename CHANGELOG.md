@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## 2.2.0 (2012-08-27)
+
+* Added `clear(id, scope = Amico.default_scope_key)` method to clear all relationships (in either direction) stored for an individual.
+
+Added the following methods for the blocked by relationship:
+
+* `blocked_by?(id, blocked_by_id, scope = Amico.default_scope_key)`
+* `blocked_by(id, page_options = default_paging_options, scope = Amico.default_scope_key)`
+* `blocked_by_count(id, scope = Amico.default_scope_key)`
+* `blocked_by_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)`
+
+Added the following methods for the pending with relationship:
+
+* `pending_with?(id, blocked_by_id, scope = Amico.default_scope_key)`
+* `pending_with(id, page_options = default_paging_options, scope = Amico.default_scope_key)`
+* `pending_with_count(id, scope = Amico.default_scope_key)`
+* `pending_with_page_count(id, page_size = Amico.page_size, scope = Amico.default_scope_key)`
+
+Thanks to [Skip Baney](https://github.com/twelvelabs) for all the work on this release.
+
 ## 2.1.0 (2012-08-20)
 
 * Added `count(id, type, scope = Amico.default_scope_key)` and `page_count(id, type, page_size = Amico.page_size, scope = Amico.default_scope_key)` as convenience methods for retrieving the count or the page count for the various types of relationships.
