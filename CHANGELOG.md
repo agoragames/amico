@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 2.3.0 (2012-08-29)
+
+* Added `deny(from_id, to_id, scope = Amico.default_scope_key)` to remove a relationship that is pending between two IDs.
+
+Again, thanks to [Skip Baney](https://github.com/twelvelabs) for the pull request with this functionality.
+
 ## 2.2.0 (2012-08-27)
 
 * Added `clear(id, scope = Amico.default_scope_key)` method to clear all relationships (in either direction) stored for an individual.
