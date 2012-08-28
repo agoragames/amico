@@ -13,7 +13,7 @@ gem 'amico'
 ```
 
 Make sure your redis server is running! Redis configuration is outside the scope of this README, but
-check out the Redis documentation, http://redis.io/documentation.
+check out the [Redis documentation](http://redis.io/documentation).
 
 ## Usage
 
