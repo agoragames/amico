@@ -626,8 +626,6 @@ describe Amico::Relationships do
     end
   end
 
-
-
   describe '#clear' do
     it 'should remove follower/following relationships' do
       Amico.follow(1, 11)
@@ -649,6 +647,7 @@ describe Amico::Relationships do
       Amico.followers_count(11).should be(0)
       Amico.reciprocated_count(11).should be(0)
     end
+
     it 'should clear pending/pending_with relationships' do
       previous_pending_value = Amico.pending_follow
       Amico.pending_follow = true
@@ -658,6 +657,7 @@ describe Amico::Relationships do
       Amico.pending_count(11).should be(0)
       Amico.pending_follow = previous_pending_value
     end
+    
     it 'should clear blocked/blocked_by relationships' do
       Amico.block(1, 11)
       Amico.blocked_count(1).should be(1)
@@ -667,7 +667,6 @@ describe Amico::Relationships do
       Amico.blocked_by_count(11).should be(0)
     end
   end
-
 
   private
 
