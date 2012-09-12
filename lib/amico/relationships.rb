@@ -679,7 +679,7 @@ module Amico
   	end
 
   	# Add the following, followers and check for a reciprocated relationship. To be used from the 
-  	# +follow++ and ++accept++ methods.
+  	# +follow+ and +accept+ methods.
   	#
   	# @param from_id [String] The ID of the individual establishing the follow relationship.
   	# @param to_id [String] The ID of the individual to be followed. 
