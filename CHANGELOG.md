@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.3.1 (2012-09-13)
+
+* Wrapped a few operations in Redis multi/exec blocks to be consistent with the rest of the library.
+
 ## 2.3.0 (2012-08-29)
 
 * Added `deny(from_id, to_id, scope = Amico.default_scope_key)` to remove a relationship that is pending between two IDs.

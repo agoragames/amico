@@ -130,8 +130,10 @@ module Amico
   	def deny(from_id, to_id, scope = Amico.default_scope_key)
   		return if from_id == to_id
 
-  		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id)
-  		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", to_id)
+      Amico.redis.multi do
+    		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", from_id)
+    		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", to_id)
+      end
   	end
 
     # Clears all relationships (in either direction) stored for an individual.
