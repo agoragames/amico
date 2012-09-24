@@ -17,8 +17,10 @@ module Amico
   	  return if Amico.pending_follow && pending?(from_id, to_id, scope)
 
   	  if Amico.pending_follow
-        Amico.redis.zadd("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)
-        Amico.redis.zadd("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
+        Amico.redis.multi do |transaction|
+          transaction.zadd("#{Amico.namespace}:#{Amico.pending_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)
+          transaction.zadd("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
+        end
   	  else
         add_following_followers_reciprocated(from_id, to_id, scope)
   	  end
