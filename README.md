@@ -605,5 +605,5 @@ user-defined in the future to allow for some specific ordering.
 
 ## Copyright
 
-Copyright (c) 2012 David Czarnecki. See LICENSE.txt for further details.
+Copyright (c) 2012-2013 David Czarnecki. See LICENSE.txt for further details.
 
