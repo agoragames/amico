@@ -695,7 +695,7 @@ module Amico
     		Amico.redis.zrem("#{Amico.namespace}:#{Amico.pending_with_key}:#{scope}:#{from_id}", to_id)
   	  end
 
-  	  if reciprocated?(from_id, to_id)
+  	  if reciprocated?(from_id, to_id, scope)
     		Amico.redis.multi do
     		  Amico.redis.zadd("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{from_id}", Time.now.to_i, to_id)
     		  Amico.redis.zadd("#{Amico.namespace}:#{Amico.reciprocated_key}:#{scope}:#{to_id}", Time.now.to_i, from_id)

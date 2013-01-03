@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 2.3.2 (2013-01-04)
+
+* Fixed an issue where the call to `reciprocated?` in the internal method `add_following_followers_reciprocated` was not passing along the scope.
+
 ## 2.3.1 (2012-09-13)
 
 * Wrapped a few operations in Redis multi/exec blocks to be consistent with the rest of the library.
