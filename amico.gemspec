@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.homepage    = "https://github.com/agoragames/amico"
   s.summary     = %q{Relationships (e.g. friendships) backed by Redis}
   s.description = %q{Relationships (e.g. friendships) backed by Redis}
+  s.license     = 'MIT'
 
   s.rubyforge_project = "amico"
 
