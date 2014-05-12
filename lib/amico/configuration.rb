@@ -81,14 +81,14 @@ module Amico
     end
 
     # Key used in Redis for tracking who an individual blocks.
-    # 
+    #
     # @return the key used in Redis for tracking who an individual blocks or the default of 'blocked' if not set.
     def blocked_key
       @blocked_key ||= 'blocked'
     end
 
     # Key used in Redis for tracking who has blocked an individual.
-    # 
+    #
     # @return the key used in Redis for tracking who has blocked an individual or the default of 'blocked_by' if not set.
     def blocked_by_key
       @blocked_by_key ||= 'blocked_by'
