@@ -4,17 +4,17 @@ describe Amico::Configuration do
   describe '#configure' do
     it 'should have default attributes' do
       Amico.configure do |configuration|
-        configuration.namespace.should eql('amico')
-        configuration.following_key.should eql('following')
-        configuration.followers_key.should eql('followers')
-        configuration.blocked_key.should eql('blocked')
-        configuration.blocked_by_key.should eql('blocked_by')
-        configuration.reciprocated_key.should eql('reciprocated')
-        configuration.pending_key.should eql('pending')
-        configuration.pending_with_key.should eql('pending_with')
-        configuration.default_scope_key.should eql('default')
-        configuration.pending_follow.should be_false
-        configuration.page_size.should be(25)
+        expect(configuration.namespace).to eql('amico')
+        expect(configuration.following_key).to eql('following')
+        expect(configuration.followers_key).to eql('followers')
+        expect(configuration.blocked_key).to eql('blocked')
+        expect(configuration.blocked_by_key).to eql('blocked_by')
+        expect(configuration.reciprocated_key).to eql('reciprocated')
+        expect(configuration.pending_key).to eql('pending')
+        expect(configuration.pending_with_key).to eql('pending_with')
+        expect(configuration.default_scope_key).to eql('default')
+        expect(configuration.pending_follow).to be_falsey
+        expect(configuration.page_size).to be(25)
       end
     end
   end
